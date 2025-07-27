@@ -214,6 +214,24 @@ void nwy_test_cli_get_iccid()
     return;
 }
 
+void nwy_test_cli_get_iccid_new()
+{
+    int result = NWY_GEN_E_UNKNOWN;
+    char iccid[21] = {0};
+    nwy_sim_id_e simid = NWY_SIM_ID_MAX;
+    simid = (nwy_sim_id_e)0;
+    result = nwy_sim_iccid_get(simid, iccid, sizeof(iccid));
+    NWY_CLI_LOG("++++ nwy_test_cli_get_iccid %d %s ++++++", result, iccid);
+    if (NWY_SUCCESS == result)
+    {
+        // nwy_sleep(100);
+        nwy_test_cli_echo("\r\nICCID Number: %s\r\n", iccid);
+    }
+    else
+        nwy_test_cli_echo("\r\nget sim iccid fail!!\r\n");
+
+}
+
 void nwy_test_cli_get_msisdn()
 {
 #ifdef NWY_OPEN_GET_MSISDN_NS

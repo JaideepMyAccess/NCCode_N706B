@@ -5,7 +5,7 @@
  * File Name    : nwy_test_cli_adpt.h
  * Author       : hujun
  * Created      : 2023-5-22
- * Description  : test²âÊÔÏî API º¯ÊýÉùÃ÷
+ * Description  : testï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ API ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *
  *****************************************************************************
  */
@@ -51,25 +51,30 @@ extern "C" {
  * 5 STRUCT Type Definition
  *****************************************************************************
  */
-/*
+
+
+/*
  *****************************************************************************
  * 6 UNION Type Definition
  *****************************************************************************
  */
 
-/* *****************************************************************************
+/*
+ *****************************************************************************
  * 7 OTHERS Definition
  *****************************************************************************
  */
 
 
-/* *****************************************************************************
+/*
+ *****************************************************************************
  * 8 Function Declare
  *****************************************************************************
  */
-/******************************************************************************
+/*
+*****************************************************************************
 * Prototype     : nwy_test_cli_start_timer
-* Description   : timer start²âÊÔÏî
+* Description   : timer startï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -81,7 +86,7 @@ void nwy_test_cli_start_timer(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_stop_timer
-* Description   : timer stop²âÊÔÏî
+* Description   : timer stopï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -93,7 +98,7 @@ void nwy_test_cli_stop_timer(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_time
-* Description   : »ñÈ¡ÏµÍ³Ê±¼ä²âÊÔÏî
+* Description   : ï¿½ï¿½È¡ÏµÍ³Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -105,7 +110,7 @@ void nwy_test_cli_get_time(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_set_time
-* Description   : ÉèÖÃÏµÍ³Ê±¼ä²âÊÔÏî
+* Description   : ï¿½ï¿½ï¿½ï¿½ÏµÍ³Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -117,7 +122,7 @@ void nwy_test_cli_set_time(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_test_semp
-* Description   : ÐÅºÅÁ¿²âÊÔÏî
+* Description   : ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -129,7 +134,7 @@ void nwy_test_cli_test_semp(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_model
-* Description   : »ñÈ¡°æ±¾ÐÅÏ¢²âÊÔÏî
+* Description   : ï¿½ï¿½È¡ï¿½æ±¾ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -141,7 +146,7 @@ void nwy_test_cli_get_model();
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_imei
-* Description   : »ñÈ¡imeiÐÅÏ¢²âÊÔÏî
+* Description   : ï¿½ï¿½È¡imeiï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -153,7 +158,7 @@ void nwy_test_cli_get_imei();
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_set_app_version
-* Description   : ÉèÖÃapp°æ±¾ºÅ²âÊÔÏî
+* Description   : ï¿½ï¿½ï¿½ï¿½appï¿½æ±¾ï¿½Å²ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -166,7 +171,7 @@ void nwy_test_cli_get_open_sdk_ver_string(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_sw_ver
-* Description   : »ñÈ¡Èí¼þ°æ±¾²âÊÔÏî
+* Description   : ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -178,7 +183,7 @@ void nwy_test_cli_get_sw_ver();
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_set_app_version
-* Description   : »ñÈ¡Ó²¼þ°æ±¾²âÊÔÏî
+* Description   : ï¿½ï¿½È¡Ó²ï¿½ï¿½ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -190,7 +195,7 @@ void nwy_test_cli_get_hw_ver();
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_heap_info
-* Description   : »ñÈ¡ÏµÍ³heap infor²âÊÔÏî
+* Description   : ï¿½ï¿½È¡ÏµÍ³heap inforï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -202,7 +207,7 @@ void nwy_test_cli_get_heap_info();
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_get_cpu_temp
-* Description   : »ñÈ¡cpuÎÂ¶È²âÊÔÏî
+* Description   : ï¿½ï¿½È¡cpuï¿½Â¶È²ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -239,7 +244,7 @@ void nwy_test_cli_date_timestamp(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_open
-* Description   : file open²âÊÔÏî
+* Description   : file openï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -250,7 +255,7 @@ void nwy_test_cli_fs_open(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_open
-* Description   : file Ð´Èë²âÊÔÏî
+* Description   : file Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -262,7 +267,7 @@ void nwy_test_cli_fs_write(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_open
-* Description   : ÎÄ¼þ¶ÁÈ¡²âÊÔÏî
+* Description   : ï¿½Ä¼ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -274,7 +279,7 @@ void nwy_test_cli_fs_read(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_open
-* Description   : fs size»ñÈ¡²âÊÔÏî
+* Description   : fs sizeï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -310,7 +315,7 @@ void nwy_test_cli_fs_seek(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_sync
-* Description   : fs Í¬²½²âÊÔÏî
+* Description   : fs Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -322,7 +327,7 @@ void nwy_test_cli_fs_sync(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_fstate
-* Description   : file stat»ñÈ¡²âÊÔÏî
+* Description   : file statï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -334,7 +339,7 @@ void nwy_test_cli_fs_fstate(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_trunc
-* Description   : file ½ØÈ¡²âÊÔÏî
+* Description   : file ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -346,7 +351,7 @@ void nwy_test_cli_fs_trunc(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_close
-* Description   : file close²âÊÔÏî
+* Description   : file closeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -358,7 +363,7 @@ void nwy_test_cli_fs_close(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_remove
-* Description   : file É¾³ý²âÊÔÏî
+* Description   : file É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -369,7 +374,7 @@ void nwy_test_cli_fs_remove(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_rename
-* Description   : fs ÖØÃüÃû²âÊÔÏî
+* Description   : fs ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -381,7 +386,7 @@ void nwy_test_cli_fs_rename(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_open
-* Description   : dir open²âÊÔÏî
+* Description   : dir openï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -393,7 +398,7 @@ void nwy_test_cli_dir_open(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_read
-* Description   : read dir ²âÊÔÏî
+* Description   : read dir ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -405,7 +410,7 @@ void nwy_test_cli_dir_read(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_tell
-* Description   : tell dir²âÊÔÏî
+* Description   : tell dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -417,7 +422,7 @@ void nwy_test_cli_dir_tell(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_seek
-* Description   : seek dir²âÊÔÏî
+* Description   : seek dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -429,7 +434,7 @@ void nwy_test_cli_dir_seek(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_rewind
-* Description   : rewind dir²âÊÔÏî
+* Description   : rewind dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -441,7 +446,7 @@ void nwy_test_cli_dir_rewind(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_close
-* Description   : ¹Ø±Õdir²âÊÔÏî
+* Description   : ï¿½Ø±ï¿½dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -453,7 +458,7 @@ void nwy_test_cli_dir_close(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_mk
-* Description   : ´´½¨dir²âÊÔÏî
+* Description   : ï¿½ï¿½ï¿½ï¿½dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -465,7 +470,7 @@ void nwy_test_cli_dir_mk(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_dir_remove
-* Description   : É¾³ýdir²âÊÔÏî
+* Description   : É¾ï¿½ï¿½dirï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -477,7 +482,7 @@ void nwy_test_cli_dir_remove(void);
 /*
 *****************************************************************************
 * Prototype     : nwy_test_cli_fs_free_size
-* Description   : »ñÈ¡ÎÄ¼þÏµÍ³free size²âÊÔÏî
+* Description   : ï¿½ï¿½È¡ï¿½Ä¼ï¿½ÏµÍ³free sizeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input         : NA
 * Output        : NA
 * Return Value  : NA
@@ -720,6 +725,7 @@ void nwy_test_cli_change_pin();
 void nwy_test_cli_verify_puk();
 void nwy_test_cli_get_imsi();
 void nwy_test_cli_get_iccid();
+void nwy_test_cli_get_iccid_new();
 void nwy_test_cli_get_msisdn();
 void nwy_test_cli_set_msisdn();
 void nwy_test_cli_get_pin_puk_times();

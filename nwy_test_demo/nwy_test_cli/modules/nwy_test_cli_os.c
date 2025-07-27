@@ -266,9 +266,10 @@ void nwy_test_cli_get_model()
     char buff[128] = {0};
 
     nwy_dm_dev_model_get(buff, sizeof(buff));
-    nwy_test_cli_echo("\r\nDev model : %s", buff);
+    nwy_test_cli_echo("\r\nDev model : %s \r\n", buff);
 }
 
+extern char ImeiNumber[20];
 void nwy_test_cli_get_imei()
 {
     char imei[16] = {0};
@@ -282,6 +283,9 @@ void nwy_test_cli_get_imei()
     }
 
     nwy_test_cli_echo("\r\nIMEI:%s \r\n", imei);
+
+    strcpy(ImeiNumber, imei);
+    
 }
 
 void nwy_test_cli_set_app_version()

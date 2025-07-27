@@ -9,6 +9,11 @@ extern void nwy_test_cli_menu_display();
 extern void nwy_test_cli_menu_back();
 extern void nwy_test_cli_menu_select(int opt);
 
+extern void nwy_test_cli_get_iccid_new();
+extern void nwy_test_cli_get_model();
+extern void nwy_test_cli_get_sw_ver();
+extern void nwy_test_cli_get_imei();
+
 void nwy_test_cli_dbg(const char *func, int line, char *fmt, ...)
 {
     static char buf[1024];
@@ -84,8 +89,8 @@ void nwy_test_cli_get_version(void)
         NWY_CLI_LOG("[%s]app get sdkversion fail",__func__);
         return;
     }
-    nwy_test_cli_echo("\r\n base version: %s\r\n", base_sdk_version_buf);
-    nwy_test_cli_echo("\r\n app version: %s\r\n", APP_VERSION);
+    nwy_test_cli_echo("\r\nBase version: %s\r\n", base_sdk_version_buf);
+    nwy_test_cli_echo("\r\nApp version: %s\r\n", APP_VERSION);
 }
 
 void nwy_get_base_fota_result()
@@ -114,6 +119,21 @@ void nwy_get_base_fota_result()
     nwy_file_remove("nwy_base_fota_flag");
 }
 
+// Code Declarations Starts
+
+#define I2C_IO_Pin 87
+
+char ImeiNumber[20]= {0};
+char MAC_ID[10] = "";
+char MERCHANT_ID[15] = "";
+char MERCH_KEY[5] = "INTG";
+
+static void customGpio(int param)
+{
+    nwy_test_cli_echo("\r\n//-----------------------------------\r\nInterrupt Triggered\r\n-----------------------------------//\r\n");
+    // i2c_state_change = true;
+}
+
 static void nwy_test_cli_main_func(void *param)
 {
     char *sptr = "";
@@ -131,10 +151,34 @@ static void nwy_test_cli_main_func(void *param)
     nwy_thread_sleep(100);
 
     // Custom Code 1 Execution
-    sptr = nwy_test_cli_input_gets("\r\n Send data to start the Execution of the Program: \r\n");
-    nwy_test_cli_echo("\r\n Hardware Version: N706B-CN-10, SDK Firmware: 009, Software Firmware: V1.00 \r\n");
-
+    sptr = nwy_test_cli_input_gets("\r\nSend data to start the Execution of the Program: \r\n");
+    nwy_test_cli_echo("\r\nHardware Version: N706B-CN-10, SDK Firmware: 009, Software Firmware: V1.00 \r\n");
+    nwy_test_cli_get_model();
+    nwy_test_cli_get_imei();
+    nwy_test_cli_get_iccid_new();
+    // nwy_test_cli_get_sw_ver();
+    nwy_test_cli_get_version();
     // Custom Code 2 Execution
+
+    // GPIO Interrupt for I2C
+    int data = nwy_gpio_irq_register(I2C_IO_Pin,1,2,customGpio,NULL);
+    if (!data)
+    {
+        nwy_test_cli_echo("\r\nGpio isr register success! --- ");
+    }
+    else
+    {
+        nwy_test_cli_echo("\r\nGpio isr register failed! --- ");
+    }
+
+    int ret2 = nwy_gpio_irq_enable(87);
+
+    if(0 == ret2)
+        nwy_test_cli_echo(" Gpio enable isr success!\r\n");
+    else
+        nwy_test_cli_echo(" Gpio enable isr fail!\r\n");
+
+
     // nwy_test_i2c();
     // nwy_test_lcd();
 
@@ -142,7 +186,9 @@ static void nwy_test_cli_main_func(void *param)
     nwy_test_cli_set_profile_new();
     nwy_thread_sleep(1000);
     nwy_test_cli_data_start_new();
-
+    nwy_thread_sleep(1000);
+    nwy_thread_sleep(1000);
+    nwy_test_cli_mqtt_connect_new();
 
     // -------------- Default Code ---------------
     // while (1)

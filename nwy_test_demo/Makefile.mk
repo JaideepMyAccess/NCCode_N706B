@@ -38,7 +38,7 @@ srcs =  comm/nwy_test_cli_utils.c \
 		#modules/nwy_test_cli_pwm.c \
 		#modules/nwy_test_cli_http.c \
 		#modules/nwy_test_cli_mobile.c 
-modules/nwy_test_temp.c\
+		modules/nwy_test_temp.c\
 		CustomModules/LCD.c\
 		CustomModules/I2C.c\
 endif

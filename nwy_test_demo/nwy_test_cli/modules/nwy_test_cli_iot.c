@@ -854,6 +854,118 @@ char echo_buff[NWY_EXT_SIO_PER_LEN + 1] = {0};
 nwy_mqtt_conn_param_t paho_mqtt_at_param = {0};
 int g_mqtt_ssl_mode = 0;
 
+
+// New Custom Code
+#define MQTT_BROKER_URL        "auqcj463j9dqt-ats.iot.ap-south-1.amazonaws.com"
+#define MQTT_BROKER_PORT       8883
+#define MQTT_CLIENT_ID         "VendingMachine"
+#define MQTT_USERNAME          "VendingMachine"
+#define MQTT_PASSWORD          "VendingMachine"
+#define MQTT_SSL_MODE          1
+#define MQTT_AUTH_MODE         2
+#define MQTT_SSL_VERSION       3
+#define MQTT_CLEAN_SESSION     1
+#define MQTT_KEEP_ALIVE        60
+#define MQTT_WILL_QOS          0
+#define MQTT_WILL_RETAINED     0
+
+// Topics
+
+char STPayment[50]; // subscribe topic payment
+char STTechConfig[50]; // subscribe topic technical configuration
+char STBusinessConfig[50]; // subscribe topic business configuration
+char STIMEIConfig[80]; // subscribe topic Initial configuration
+char STIMEIConfigFota[80]; // subscribe topic Fota configuration
+char STReqConfig[50]; // Subscribe to trigger to send the machine config
+
+char PTDispenseStatus[50]; // publish topic dispense status
+char PTDispenseInventory[50]; // publish topic dispense status
+char PTIncinCycleMessage[50]; // publish topic incineration cycle message
+char PTIncinNapkinMessage[50]; // publish topic incineration napkin message
+char PTInitialConfig[50]; // publish topic initial configuration
+// char PTReqConfig[50]; // publish topic Trigger send configuration
+
+char PTConfigReq[50] = "POS/INTG/CONFIGREQ";
+char PTConfigAck[50] = "POS/INTG/ACK";
+char PTReqConfig[50] = "POS/INTG/RESFORCURCONFIG";
+
+extern char ImeiNumber[20];
+extern char MAC_ID[10];
+extern char MERCHANT_ID[15];
+extern char MERCH_KEY[5];
+// Replace these with actual certificates
+const char AWS_CA_CERT[] = "-----BEGIN CERTIFICATE-----\r\n"
+"MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\r\n"
+"ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\r\n"
+"b24gUm9vdCBDQSAxMB4XDTE1MDUyNjAwMDAwMFoXDTM4MDExNzAwMDAwMFowOTEL\r\n"
+"MAkGA1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJv\r\n"
+"b3QgQ0EgMTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALJ4gHHKeNXj\r\n"
+"ca9HgFB0fW7Y14h29Jlo91ghYPl0hAEvrAIthtOgQ3pOsqTQNroBvo3bSMgHFzZM\r\n"
+"9O6II8c+6zf1tRn4SWiw3te5djgdYZ6k/oI2peVKVuRF4fn9tBb6dNqcmzU5L/qw\r\n"
+"IFAGbHrQgLKm+a/sRxmPUDgH3KKHOVj4utWp+UhnMJbulHheb4mjUcAwhmahRWa6\r\n"
+"VOujw5H5SNz/0egwLX0tdHA114gk957EWW67c4cX8jJGKLhD+rcdqsq08p8kDi1L\r\n"
+"93FcXmn/6pUCyziKrlA4b9v7LWIbxcceVOF34GfID5yHI9Y/QCB/IIDEgEw+OyQm\r\n"
+"jgSubJrIqg0CAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC\r\n"
+"AYYwHQYDVR0OBBYEFIQYzIU07LwMlJQuCFmcx7IQTgoIMA0GCSqGSIb3DQEBCwUA\r\n"
+"A4IBAQCY8jdaQZChGsV2USggNiMOruYou6r4lK5IpDB/G/wkjUu0yKGX9rbxenDI\r\n"
+"U5PMCCjjmCXPI6T53iHTfIUJrU6adTrCC2qJeHZERxhlbI1Bjjt/msv0tadQ1wUs\r\n"
+"N+gDS63pYaACbvXy8MWy7Vu33PqUXHeeE6V/Uq2V8viTO96LXFvKWlJbYK8U90vv\r\n"
+"o/ufQJVtMVT8QtPHRh8jrdkPSHCa2XV4cdFyQzR1bldZwgJcJmApzyMZFo6IQ6XU\r\n"
+"5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\r\n"
+"rqXRfboQnoZsG4q5WTP468SQvvG5\r\n"
+"-----END CERTIFICATE-----\r\n";
+
+
+const char AWS_CLIENT_CERT[] = "-----BEGIN CERTIFICATE-----\r\n"
+"MIIDWjCCAkKgAwIBAgIVAO4N/T9qPDXsEO7Rt33EZGcT+snNMA0GCSqGSIb3DQEB\r\n"
+"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\r\n"
+"IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0yNTAzMDMxOTUz\r\n"
+"NTFaFw00OTEyMzEyMzU5NTlaMB4xHDAaBgNVBAMME0FXUyBJb1QgQ2VydGlmaWNh\r\n"
+"dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC25Eu6aMMK38uI+AlZ\r\n"
+"EprYARUGTQRamcJYBFGbloiLt9GcI2tg6HDVkYriHDjpo7bew9TfrZmPz7a4NbVp\r\n"
+"rU/o5PC9NpT4Jsy/HpBaJwkEXmENRfe1rhr6LD0HS4KE2VFfyujomONAbtlRHZth\r\n"
+"IGupzpnialXa67oqDXIS7blqtnwpcsTmYbl2buFErOcH01r0Xa/yH0A2lOWe7d0m\r\n"
+"/fGzmHDR22s5f72FnfWHLD9/uqAd4hdrpLE4ojINSjgeFhR41m83DZfK/DgF1Ada\r\n"
+"FGgyN/4NVgzTJeMhgVhL6tT3HWxqYjZNS9Y2T6W5z8MKag6TpGBoIs10QKFFOICu\r\n"
+"OANtAgMBAAGjYDBeMB8GA1UdIwQYMBaAFD/0W5fKNnwwr2bFwcAPmj1gHi0LMB0G\r\n"
+"A1UdDgQWBBT51Un05MtYuzL0HcOv1T1/lbwSKzAMBgNVHRMBAf8EAjAAMA4GA1Ud\r\n"
+"DwEB/wQEAwIHgDANBgkqhkiG9w0BAQsFAAOCAQEAcUffAiOp2YiZ2cTsERU4D77U\r\n"
+"bIc85u6B8tBUWDD2iBbVxT6IYld5TgMMZ4rAHRONK7ySGIgKXVg0ek0AL/ahNJFY\r\n"
+"omDHQbitxTgbL0feIoPoUHlJLLvrg3i149tksThyXt7oV+GHxTSf5UddIQAgkag0\r\n"
+"LiIxNTOsadrk45Wp3a5RTyDqChzPpRSMUES+p5QOU4f4gVgWHxEKc0J27zj4F6mO\r\n"
+"MBnGTyFJAiz0d4CDQ6qIDPm5z1i2vj8q3g7owiUcVPV8uBCA/XeigkjuAQS3hoSG\r\n"
+"tJVvEPJQK7G/kUY9EOGFuZw3PI8T6uVNjYEmz3E299QBiMB7RDy4OqM2jpA0Rg==\r\n"
+"-----END CERTIFICATE-----\r\n";
+
+
+const char AWS_CLIENT_PRIVATE_KEY[] = "-----BEGIN RSA PRIVATE KEY-----\r\n"
+"MIIEpQIBAAKCAQEAtuRLumjDCt/LiPgJWRKa2AEVBk0EWpnCWARRm5aIi7fRnCNr\r\n"
+"YOhw1ZGK4hw46aO23sPU362Zj8+2uDW1aa1P6OTwvTaU+CbMvx6QWicJBF5hDUX3\r\n"
+"ta4a+iw9B0uChNlRX8ro6JjjQG7ZUR2bYSBrqc6Z4mpV2uu6Kg1yEu25arZ8KXLE\r\n"
+"5mG5dm7hRKznB9Na9F2v8h9ANpTlnu3dJv3xs5hw0dtrOX+9hZ31hyw/f7qgHeIX\r\n"
+"a6SxOKIyDUo4HhYUeNZvNw2Xyvw4BdQHWhRoMjf+DVYM0yXjIYFYS+rU9x1samI2\r\n"
+"TUvWNk+luc/DCmoOk6RgaCLNdEChRTiArjgDbQIDAQABAoIBAAozK0IHK7GEj65g\r\n"
+"3uyXzAj17n0+eFqxLpSIESETQSRBqTADDa8G55wRlORNXKMzHTTJSSr8XI8Xr4IQ\r\n"
+"hMCTCNzdP8vdqms4hry18KkGektDFDiQSWNZhWmkY/bvMCVGlXI5N8oZFLt4MyiB\r\n"
+"9TNygm6i9hQZiBZAhU5pF46UsX2Q/bH9d7gteBXEefdAJ4o4QnRv605RkqdCsICu\r\n"
+"2MnBKEHx8g2peiE+zw3D5PdguqPRtPiZjkach9yb3WEQD4UJpXwBZB3G7nVI8HYM\r\n"
+"wrNNBggN33spBJ7altsjKMYv5vpCWPpZDFK94AKtkhJc9c62/aGSzdu33S+0qfzr\r\n"
+"aDMv0OECgYEA3Gwck0uiRGLyUE17XkKJA25p658JY8uXrdlLkzmvULc1/rwloHA5\r\n"
+"68DScU50D545NNFo0VaLgXUvOX757uXQr/k6yeM26WIjH7PpjoMI0yWfrXh+sAtz\r\n"
+"NL91UFHXBkXWaravhCB1l3GKNkUsDP8oQsSNhzeP0wLo2x4m9WYGwIkCgYEA1Glq\r\n"
+"hqi+LZ4g5rcHCLWdgN5jSkvhMS3jq2I4okbSy6I6PgBzVnet4SM2xKPnUsr/gfh1\r\n"
+"JmmC6lfQr8nRVLMchab60rPKniUXK01HFXKOQWotLz1TNdiiGg4jAsUCSRzoXVZC\r\n"
+"7vxI2YVF+mvzwY2wBDj1+AqPsWuKOZwCaCZcisUCgYEApo/fjAKkTM8EUmAqcFEQ\r\n"
+"3hHqYk1cOBgZtxozfL4jV3gKikK8oB8N9bNQkqR5GXAzxFDVxxKB+sKFfAoSbU8m\r\n"
+"QkOwA+z5iqRI7GT0gWdNHNkab2hVO0x7swlWaepd9PSDEUKZINuyYE1A5r+giPWr\r\n"
+"A8EpPVtkCEzzjtibEecWBRkCgYEAkIo7Ru7Emt4jnVummbKcPvkVr5T65DBJ4HGy\r\n"
+"ABsZjiASaeZ8lbZSyATiW+T8oEYqoBKmBUF/KGAhTb2TiINpQTljLMXTdtHedkTb\r\n"
+"vih5zOGnZaHhYZ7Mj9ZW1Kei6oWVSQ5N9boPCJW8DLAw6uCziewI1IS7SwvWv2T9\r\n"
+"7klMZ9ECgYEAq5afCSz3BxjD0QuE06k7DtDXVYgLBB1D7X5THExCfvxIAHVCqjgf\r\n"
+"8t5vFVAV2OvVSWUxUF1f1Uh4RMVYZ36//hNxYFy5KjVAWYp/PQFpWyWHWPCjVAEf\r\n"
+"v0awvoVQiK8XK8aWCBlb8q95jSFnoPkt03C3Ha8MFjwrly704UR2vMc=\r\n"
+"-----END RSA PRIVATE KEY-----\r\n";
+
 nwy_ssl_conf_t g_mqtt_ssl = {NWY_VERSION_TLS_V1_2_E,NWY_SSL_AUTH_NONE_E,{NULL,0},{NULL,0},{NULL,0}, 0, NULL};
 
 
@@ -912,6 +1024,179 @@ nwy_osi_thread_t nwy_paho_yeild_task_init(void)
     else
         nwy_thread_resume(nwy_paho_task_id);
     return nwy_paho_task_id;
+}
+
+void mqtt_subscribe_topic(const char *topic)
+{
+    int rc = MQTTSubscribe(&paho_mqtt_client, (char *)topic, 0, messageArrived);
+    if (rc == SUCCESS)
+        nwy_test_cli_echo("\r\nSubscribed to: %s", topic);
+    else
+        nwy_test_cli_echo("\r\nSubscribe failed: %s (rc=%d)", topic, rc);
+}
+
+void nwy_test_cli_mqtt_connect_new()
+{
+    int rc;
+    int len = 0;
+
+    if (MQTTIsConnected(&paho_mqtt_client) == 1)
+    {
+        nwy_test_cli_echo("\r\npaho mqtt already connected");
+        return;
+    }
+
+    nwy_test_cli_echo("\r\nnwy_test_cli_mqtt_connect [Hardcoded Mode]\r\n");
+
+    memset(&paho_mqtt_at_param, 0, sizeof(nwy_mqtt_conn_param_t));
+
+    strncpy(paho_mqtt_at_param.clientid, MQTT_CLIENT_ID, sizeof(paho_mqtt_at_param.clientid));
+    strncpy(paho_mqtt_at_param.username, MQTT_USERNAME, sizeof(paho_mqtt_at_param.username));
+    strncpy(paho_mqtt_at_param.password, MQTT_PASSWORD, sizeof(paho_mqtt_at_param.password));
+
+    g_mqtt_ssl_mode = MQTT_SSL_MODE;
+
+    memset(g_nwy_paho_writebuf, 0, NWY_PAHO_MSG_LEN_MAX);
+    memset(g_nwy_paho_readbuf, 0, NWY_PAHO_MSG_LEN_MAX);
+    memset(&paho_network, 0, sizeof(Network));
+    NetworkInit(&paho_network);
+
+    if (g_mqtt_ssl_mode == 1)
+    {
+        g_mqtt_ssl.authmode = MQTT_AUTH_MODE;
+
+        if (g_mqtt_ssl.authmode == 2)
+        {
+            // CA Cert
+            len = strlen(AWS_CA_CERT);
+            paho_network.tlsConnectParams.ca_cert = (char *)malloc(len + 1);
+            if (!paho_network.tlsConnectParams.ca_cert)
+            {
+                nwy_test_cli_echo("\r\nmalloc failed for ca_cert");
+                return;
+            }
+            memset(paho_network.tlsConnectParams.ca_cert, 0, len + 1);
+            strncpy(paho_network.tlsConnectParams.ca_cert, AWS_CA_CERT, len);
+
+            // Client Cert
+            len = strlen(AWS_CLIENT_CERT);
+            paho_network.tlsConnectParams.client_cert = (char *)malloc(len + 1);
+            if (!paho_network.tlsConnectParams.client_cert)
+            {
+                nwy_test_cli_echo("\r\nmalloc failed for client_cert");
+                return;
+            }
+            memset(paho_network.tlsConnectParams.client_cert, 0, len + 1);
+            strncpy(paho_network.tlsConnectParams.client_cert, AWS_CLIENT_CERT, len);
+
+            // Client Key
+            len = strlen(AWS_CLIENT_PRIVATE_KEY);
+            paho_network.tlsConnectParams.client_key = (char *)malloc(len + 1);
+            if (!paho_network.tlsConnectParams.client_key)
+            {
+                nwy_test_cli_echo("\r\nmalloc failed for client_key");
+                return;
+            }
+            memset(paho_network.tlsConnectParams.client_key, 0, len + 1);
+            strncpy(paho_network.tlsConnectParams.client_key, AWS_CLIENT_PRIVATE_KEY, len);
+        }
+
+        paho_network.tlsConnectParams.ServerVerificationFlag = g_mqtt_ssl.authmode;
+        paho_network.is_SSL = 1;
+        paho_network.tlsConnectParams.timeout_ms = 5000;
+        paho_network.tlsConnectParams.ssl_version = MQTT_SSL_VERSION;
+    }
+    else
+    {
+        nwy_test_cli_echo("\r\nis no-SSL NetworkConnect");
+    }
+
+    paho_mqtt_at_param.cleansession = MQTT_CLEAN_SESSION;
+    paho_mqtt_at_param.keepalive = MQTT_KEEP_ALIVE;
+
+    nwy_test_cli_echo("\r\nConnecting to %s:%d", MQTT_BROKER_URL, MQTT_BROKER_PORT);
+    rc = NetworkConnect(&paho_network, MQTT_BROKER_URL, MQTT_BROKER_PORT);
+    if (rc < 0)
+    {
+        nwy_test_cli_echo("\r\nNetworkConnect failed, rc=%d", rc);
+        return;
+    }
+
+    MQTTClientInit(&paho_mqtt_client, &paho_network, 10000, g_nwy_paho_writebuf, NWY_PAHO_MSG_LEN_MAX,
+                   g_nwy_paho_readbuf, NWY_PAHO_MSG_LEN_MAX);
+
+    paho_mqtt_client.defaultMessageHandler = messageArrived;
+
+    data.clientID.cstring = paho_mqtt_at_param.clientid;
+    data.username.cstring = paho_mqtt_at_param.username;
+    data.password.cstring = paho_mqtt_at_param.password;
+    data.keepAliveInterval = paho_mqtt_at_param.keepalive;
+    data.cleansession = paho_mqtt_at_param.cleansession;
+
+    if ((rc = MQTTConnect(&paho_mqtt_client, &data)))
+    {
+        nwy_test_cli_echo("\r\nMQTT connect failed, return code %d", rc);
+    }
+    else
+    {
+        nwy_test_cli_echo("\r\nMQTT connect successful");
+        nwy_osi_thread_t task_id = nwy_paho_yeild_task_init();
+        if (task_id == NULL)
+            nwy_test_cli_echo("\r\npaho yield task creation failed");
+        else
+            nwy_test_cli_echo("\r\npaho yield task started");
+
+        // Subscribe Topic Assign
+        sprintf(STPayment, "HFS/%s/dispense", MAC_ID);
+        sprintf(STTechConfig, "HFS/%s/techconfig", MAC_ID);
+        sprintf(STBusinessConfig, "HFS/%s/businessconfig", MAC_ID);
+        sprintf(STIMEIConfig, "POS/PROD/INTG/INITCONFIG/%s", ImeiNumber);
+        sprintf(STIMEIConfigFota, "POS/PROD/INTG/INITCONFIG/%s/Fota", ImeiNumber);
+        sprintf(STReqConfig, "POS/INTG/%s/REQFORCURCONFIG", MAC_ID);
+
+        sprintf(PTDispenseInventory, "POS/%s/Inventory", MERCH_KEY);
+        sprintf(PTDispenseStatus, "POS/HFS/%s/dispensestatus", MERCH_KEY);
+        sprintf(PTIncinCycleMessage, "POS/HFS/%s/dispensestatus", MERCH_KEY);
+        sprintf(PTIncinNapkinMessage, "POS/HFS/%s/dispensestatus", MERCH_KEY);
+        sprintf(PTInitialConfig, "POS/PROD/INTG/INITCONFIG");
+
+        // --- Subscribe to Topics ---
+        mqtt_subscribe_topic(STPayment);
+        mqtt_subscribe_topic(STTechConfig);
+        mqtt_subscribe_topic(STBusinessConfig);
+        mqtt_subscribe_topic(STIMEIConfig);
+        mqtt_subscribe_topic(STIMEIConfigFota);
+        mqtt_subscribe_topic(STReqConfig);
+
+        nwy_thread_sleep(2000);
+
+        // if(strcmp(MAC_ID, "") == 0 | strcmp(MERCH_KEY, "") == 0){
+        //     nwy_ext_echo("MAC ID and Merchant Key are not set. Waiting for Configuration \n");
+        //     nwy_sleep(1000);
+        //     send_initial_config();
+        // }else{
+        //     if(!technicalConfigFound){
+        //         lcd_last_display_time = nwy_get_up_time_us_int64();
+        //         lcd_clear();
+        //         Display(0, PAGE2, 0, "     Waiting For       ");
+        //         Display(0, PAGE4, 0, "     Techinacal       ");
+        //         Display(0, PAGE6, 0, "    Configuration      ");
+        //         nwy_sleep(2000);
+        //         req_config(1);
+        //         nwy_sleep(5000);
+        //     }
+        //     if(!businessConfigFound){
+        //         lcd_last_display_time = nwy_get_up_time_us_int64();
+        //         lcd_clear();
+        //         Display(0, PAGE2, 0, "     Waiting For       ");
+        //         Display(0, PAGE4, 0, "       Business        ");
+        //         Display(0, PAGE6, 0, "    Configuration      ");
+        //         nwy_sleep(2000);
+        //         req_config(3);
+        //         nwy_sleep(5000);
+        //     }
+        // }
+    }
 }
 
 void nwy_test_cli_mqtt_connect()

@@ -25,7 +25,7 @@ void nwy_test_i2c(){
         unsigned char new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
         memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
         nwy_i2c_send_data();
-        nwy_test_lcd();
+        // nwy_test_lcd();
     }
     
 }
