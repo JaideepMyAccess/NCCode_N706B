@@ -1,0 +1,60 @@
+{
+  "name": "ASR1601_EVB",
+  "version": "0.5",
+  "version-bootrom": "2019.01.15",
+  "template": "ASR1601_TEMPLATE",
+  "layout": "ASR1601_SINGLE_FLASH_LAYOUT",
+  "keyAlg": "rsa",
+  "hashAlg": "sha256",
+  "secureBoot": false,
+  "firmwareGenerator": {
+    "name": "crane",
+    "call-max-download-size": "60KiB",
+    "flash-max-download-size": "1MiB",
+    "use-lzma-compression": false
+  },
+  "variants": [
+    {
+      "name": "ASR1601_08MB",
+      "fota": ["system"],
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ],
+      "partitions": [
+        {
+          "name": "nvm",
+          "size": "512KiB"
+        },
+        {
+          "name": "fota_pkg",
+          "size": "4KiB"
+        }
+      ]
+    },
+    {
+      "name": "ASR1601_16MB",
+      "fota": ["system"],
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_16MB_B64KB_S4KB_P256"
+        }
+      ],
+      "partitions": [
+        {
+          "name": "nvm",
+          "size": "1024KiB"
+        },
+        {
+          "name": "fota_pkg",
+          "size": "3MiB"
+        }
+      ]
+    }
+  ]
+}

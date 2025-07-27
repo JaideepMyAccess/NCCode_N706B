@@ -1,0 +1,132 @@
+{
+  "name": "ASR1603_EVB",
+  "version": "0.5",
+  "template": "ASR1603_TEMPLATE",
+  "layout": "ASR1603_SINGLE_FLASH_LAYOUT",
+  "fota": ["system"],
+  "keyAlg": "rsa",
+  "hashAlg": "sha256",
+  "secureBoot": false,
+  "firmwareGenerator": {
+    "name": "crane",
+    "call-max-download-size": "60KiB",
+    "flash-max-download-size": "1MiB",
+    "use-lzma-compression": false
+  },
+  "variants": [
+    {
+      "name": "ASR1603_08MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_TEMPLATE",
+      "layout": "ASR1603_SINGLE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ],
+      "partitions": [
+        {
+          "name": "nvm",
+          "size": "512KiB"
+        },
+        {
+          "name": "fota_pkg",
+          "size": "4KiB"
+        }
+      ]
+    },
+    {
+      "name": "ASR1603_ASR5311_08MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_ASR5311_TEMPLATE",
+      "layout": "ASR1603_ASR5311_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ],
+      "partitions": [
+        {
+          "name": "nvm",
+          "size": "512KiB"
+        },
+        {
+          "name": "fota_pkg",
+          "size": "4KiB"
+        }
+      ]
+    },
+    {
+      "name": "ASR1603_16MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_TEMPLATE",
+      "layout": "ASR1603_SINGLE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_16MB_B64KB_S4KB_P256"
+        }
+      ],
+      "partitions": [
+        {
+          "name": "nvm",
+          "size": "1024KiB"
+        },
+        {
+          "name": "fota_pkg",
+          "size": "3MiB"
+        }
+      ]
+    },
+	    {
+      "name": "ASR1603_SINGLE_SIM_SMS_08MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1603_SINGLE_SIM_SMS_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1603_SINGLE_SIM_VOLTE_08MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1603_SINGLE_SIM_VOLTE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1603_SINGLE_SIM_CSSMS_08MB",
+      "product": "arom-tiny",
+      "version-bootrom": "2020.07.30",
+      "template": "ASR1603_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1603_SINGLE_SIM_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    }
+  ]
+}

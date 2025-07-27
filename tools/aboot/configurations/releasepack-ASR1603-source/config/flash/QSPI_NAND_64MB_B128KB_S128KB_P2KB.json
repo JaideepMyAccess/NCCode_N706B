@@ -1,0 +1,25 @@
+{
+  "name": "QSPI_NAND_64MB_B128KB_S128KB_P2KB",
+  "type": "QSPI_NAND",
+  "minIoSize": "2KiB",
+  "pageSize": "2KiB",
+  "pebSize": "128KiB",
+  "sectorSize": "128KiB",
+  "blockSize": "128KiB",
+  "flashSize": "64MiB",
+  "erasedValue": "0xFF",
+  "devices": [
+    {
+      "name": "W25N512GW",
+      "manufacturer": "Winbond",
+      "vendorId": "0xEF",
+      "deviceId": "0xBA20"
+    },
+    {
+      "name": "F35UQA512M",
+      "manufacturer": "Foresee",
+      "vendorId": "0xCD",
+      "deviceId": "0x6060"
+    }
+  ]
+}

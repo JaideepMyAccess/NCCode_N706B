@@ -1,0 +1,147 @@
+{
+  "name": "ASR1606_EVB",
+  "product": "arom-tiny",
+  "version": "0.5",
+  "keyAlg": "rsa",
+  "hashAlg": "sha256",
+  "secureBoot": false,
+  "firmwareGenerator": {
+    "name": "crane",
+    "call-max-download-size": "60KiB",
+    "flash-max-download-size": "1MiB",
+    "use-lzma-compression": true
+  },
+  "fota": ["system"],
+  "variants": [
+    {
+      "name": "ASR1606_02MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_SINGLE_SIM_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_2MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_ASR5311_02MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_ASR5311_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_ASR5311_SINGLE_SIM_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_2MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_04MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_TEMPLATE",
+      "layout": "ASR1606_SINGLE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_4MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_08MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_TEMPLATE",
+      "layout": "ASR1606_SINGLE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_ASR5311_04MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_ASR5311_TEMPLATE",
+      "layout": "ASR1606_ASR5311_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_4MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_SINGLE_SIM_04MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_SINGLE_SIM_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_4MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_ASR5311_SINGLE_SIM_VOLTE_04MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_ASR5311_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_ASR5311_SINGLE_SIM_VOLTE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_4MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_SINGLE_SIM_08MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_SINGLE_SIM_VOLTE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_ASR5801_SINGLE_SIM_VOLTE_08MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_ASR5801_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR1606_ASR5801_SINGLE_SIM_VOLTE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR1606_ASR5311_08MB",
+      "version-bootrom": "2021.10.16",
+      "template": "ASR1606_ASR5311_TEMPLATE",
+      "layout": "ASR1606_ASR5311_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_8MB_B64KB_S4KB_P256"
+        }
+      ]
+    }
+  ]
+}

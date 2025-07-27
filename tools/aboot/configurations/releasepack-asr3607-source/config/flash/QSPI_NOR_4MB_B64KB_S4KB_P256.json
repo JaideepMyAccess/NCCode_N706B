@@ -1,0 +1,103 @@
+{
+  "name": "QSPI_NOR_4MB_B64KB_S4KB_P256",
+  "type": "QSPI_NOR",
+  "minIoSize": 1,
+  "pageSize": 256,
+  "pebSize": "4KiB",
+  "sectorSize": "4KiB",
+  "blockSize": "64KiB",
+  "flashSize": "4MiB",
+  "erasedValue": "0xFF",
+  "devices": [
+    {
+      "name": "GD25LQ32E",
+      "manufacturer": "GigaDevice",
+      "vendorId": "0xC8",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "XM25LU32C",
+      "manufacturer": "XMC",
+      "vendorId": "0x20",
+      "deviceId": "0x5016"
+    },
+    {
+      "name": "W25Q32JW-IQ",
+      "manufacturer": "WinBond",
+      "vendorId": "0xEF",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "W25Q32JW-IM",
+      "manufacturer": "WinBond",
+      "vendorId": "0xEF",
+      "deviceId": "0x8016"
+    },
+    {
+      "name": "P25Q32SLE",
+      "manufacturer": "PUYA",
+      "vendorId": "0x85",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "ZB25LQ32B",
+      "manufacturer": "ZBIT",
+      "vendorId": "0x5E",
+      "deviceId": "0x5016"
+    },
+    {
+      "name": "MX25U3235F",
+      "manufacturer": "Macronix",
+      "vendorId": "0xC2",
+      "deviceId": "0x2536"
+    },
+    {
+      "name": "ZD25WQ32C",
+      "manufacturer": "Zetta",
+      "vendorId": "0xBA",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "SK25LE032",
+      "manufacturer": "SiliconKaiser",
+      "vendorId": "0x25",
+      "deviceId": "0x7016"
+    },
+    {
+      "name": "GT25Q32A",
+      "manufacturer": "GIANTEC",
+      "vendorId": "0xC4",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "BY25Q32EL",
+      "manufacturer": "BYTe",
+      "vendorId": "0x68",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "FM25W32AI3",
+      "manufacturer": "Fudan",
+      "vendorId": "0xA1",
+      "deviceId": "0x2816"
+    },
+    {
+      "name": "FM25LQ32I3",
+      "manufacturer": "Fudan",
+      "vendorId": "0xA1",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "XT25Q32F",
+      "manufacturer": "XTX",
+      "vendorId": "0x0B",
+      "deviceId": "0x6016"
+    },
+    {
+      "name": "XT25W32F",
+      "manufacturer": "XTX",
+      "vendorId": "0x0B",
+      "deviceId": "0x6516"
+    }
+  ]
+}

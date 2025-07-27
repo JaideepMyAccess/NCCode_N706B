@@ -1,0 +1,31 @@
+{
+  "name": "SPI_NOR_1MB_B64KB_S4KB_P256",
+  "type": "SPI_NOR",
+  "minIoSize": 1,
+  "pageSize": 256,
+  "pebSize": "4KiB",
+  "sectorSize": "4KiB",
+  "blockSize": "64KiB",
+  "flashSize": "1MiB",
+  "erasedValue": "0xFF",
+  "devices": [
+    {
+      "name": "XM25QU80B",
+      "manufacturer": "XMC",
+      "vendorId": "0x20",
+      "deviceId": "0x5014"
+    },
+    {
+      "name": "FM25W08",
+      "manufacturer": "Fudan",
+      "vendorId": "0xA1",
+      "deviceId": "0x2814"
+    },
+    {
+      "name": "ZB25WQ80A",
+      "manufacturer": "ZBIT",
+      "vendorId": "0x5E",
+      "deviceId": "0x3414"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "EMMC_GENERIC_512M_FLASH",
+  "type": "EMMC",
+  "minIoSize": 1,
+  "pageSize": 512,
+  "pebSize": "4KiB",
+  "sectorSize": 512,
+  "blockSize": "4KiB",
+  "flashSize": "512MiB",
+  "erasedValue": "0x00",
+  "devices": [
+    {
+      "name": "EMMC_GENERIC",
+      "manufacturer": "ASR Microelectronics",
+      "vendorId": "0x2ecc",
+      "deviceId": "0xffff"
+    }
+  ]
+}

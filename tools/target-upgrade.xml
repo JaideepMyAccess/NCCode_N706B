@@ -1,0 +1,11 @@
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<PackageInfo>
+	<ContainImageNum>1</ContainImageNum>
+	<TargetGenPackPath>nwy_open_app_fota.pkt</TargetGenPackPath>
+	<ImageInfo>
+		<PackageNumID>1</PackageNumID>
+		<ImageName>apimg</ImageName>
+		<ImageFlashAddr>0x310000</ImageFlashAddr>
+		<SourceImagePath>nwy_open_app.bin</SourceImagePath>
+	</ImageInfo>
+</PackageInfo>

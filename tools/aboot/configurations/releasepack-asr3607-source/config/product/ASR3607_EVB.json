@@ -1,0 +1,37 @@
+{
+  "name": "ASR3607_EVB",
+  "product": "arom-tiny",
+  "version": "0.6",
+  "keyAlg": "rsa",
+  "hashAlg": "sha256",
+  "secureBoot": false,
+  "fota": ["system"],
+  "variants": [
+    {
+      "name": "ASR3607_16MB",
+      "version-bootrom": "2022.11.06",
+      "template": "ASR3607_TEMPLATE",
+      "layout": "ASR3607_SINGLE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_16MB_B64KB_S4KB_P256"
+        }
+      ]
+    },
+    {
+      "name": "ASR3607_SINGLE_SIM_16MB",
+      "version-bootrom": "2022.11.06",
+      "template": "ASR3607_SINGLE_SIM_TEMPLATE",
+      "layout": "ASR3607_SINGLE_SIM_VOLTE_FLASH_LAYOUT",
+      "flashes": [
+        {
+          "name": "qspi",
+          "port": "QSPI",
+          "flash": "QSPI_NOR_16MB_B64KB_S4KB_P256"
+        }
+      ]
+    }
+  ]
+}
