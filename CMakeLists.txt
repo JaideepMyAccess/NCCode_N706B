@@ -39,6 +39,7 @@ include_directories(
     include/mbedtls/include
     nwy_test_demo/nwy_test_cli/comm
     nwy_test_demo/nwy_test_cli/modules
+    nwy_test_demo/nwy_test_cli/CustomModules
 )
 
 #set_target_properties(${target} PROPERTIES OBJECT_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/obj)
@@ -74,6 +75,7 @@ target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/modules/nwy_te
 # Custom Modules Import
 target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/LCD.c)
 target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/I2C.c)
+target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/Flash.c)
 
 # set target map file for target lin
 set(target_map_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${build_target}.map)

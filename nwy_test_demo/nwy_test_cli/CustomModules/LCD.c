@@ -69,7 +69,7 @@ void delay_us(uint32_t us)
     for (count = 0; count < us * 10; count++) // Rough delay loop
     {
         // dummy++;
-        //  __asm__("NOP");
+         __asm__("NOP");
 
     }
 }
@@ -90,9 +90,9 @@ void init_display_gpio(void)
     nwy_gpio_value_set(DISPLAY_RESET_PIN, (nwy_value_e)1);
 
     nwy_gpio_value_set(DISPLAY_RESET_PIN, (nwy_value_e)0);
-    nwy_thread_sleep(1000);
+    nwy_thread_sleep(500);
     nwy_gpio_value_set(DISPLAY_RESET_PIN, (nwy_value_e)1);
-    nwy_thread_sleep(100);
+    nwy_thread_sleep(50);
 }
 
 // Clear LCD
@@ -153,7 +153,6 @@ void lcd_send_data(uint8_t data)
 void spi_bitbang_send(uint8_t data)
 {
     uint8_t i, mask = 0x80;
-     delay_us(2);
     for (i = 0; i < 8; i++) 
     {
         // Set Data Line
@@ -173,7 +172,6 @@ void spi_bitbang_send(uint8_t data)
 void spi_bitbang_send_image(uint8_t data)
 {
     uint8_t i, mask = 0x01;
-     delay_us(2);
     for (i = 0; i < 8; i++) 
     {
         // Set Data Line
@@ -203,12 +201,9 @@ void lcd_test_pattern(void)
         for (uint8_t j = 0; j < 128; j++)
         {
             lcd_send_data(0xAA); // Alternating pattern
-            // nwy_thread_sleep(100);
         }
     }
 }
-
-
 
 
 void DispNewImage(uint8_t *Adata) // Left to Right & Top to Bottom
@@ -230,14 +225,11 @@ void DispNewImage(uint8_t *Adata) // Left to Right & Top to Bottom
     }
 }
 
-
 void lcd_send_data_image(uint8_t data)
 {
     nwy_gpio_value_set(DISPLAY_DC_PIN, (nwy_value_e)1);  // Data Mode
     spi_bitbang_send_image(data);
 }
-
-
 
 uint8_t alpha[95][6] ={
 {0x0,0x0,0x0,0x0,0x0,0x0},		//

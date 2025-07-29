@@ -2,6 +2,8 @@
 #include "nwy_test_cli_utils.h"
 #include "nwy_test_cli_func_def.h"
 #include "nwy_cust.h"
+#include "jsmn.h"
+#include "global.h"
 static nwy_osi_thread_t nwy_test_cli_thread = NULL;
 static const char APP_VERSION[65] = "NWY_APP_V1.0.1";
 
@@ -123,11 +125,182 @@ void nwy_get_base_fota_result()
 
 #define I2C_IO_Pin 87
 
-char ImeiNumber[20]= {0};
+
+
+// // ==============================
+// // 📦 1. Struct Declarations
+// // ==============================
+// typedef struct {
+//     int LTEStatus;
+//     int I2CStatus;
+//     int AWSStatus;
+// } ChipConfigStruct;
+
+// typedef struct {
+//   int StockStatus;
+//   int PStockStatus;
+//   int HeaterATemp;
+//   int HeaterBTemp;
+//   int HeaterAStatus;
+//   int HeaterBStatus;
+// } MachineReadingStruct;
+
+// typedef struct {
+//     int techConfig;
+// } AWSTopicsStruct;
+
+// typedef struct {
+//     int IncinBatchID;
+//     int IncinBurnNapkinTime;
+// } IncinDataStruct;
+
+// ==============================
+// 🧾 2. Global Struct Variables
+// ==============================
+MachineReadingStruct machineReadings = {
+    .StockStatus = 2,
+    .PStockStatus = 2,
+    .HeaterATemp = 25,
+    .HeaterBTemp = 25,
+    .HeaterAStatus = 1,
+    .HeaterBStatus = 1
+};
+
+ChipConfigStruct chipConfig = {
+    .I2CStatus = 0,
+    .LTEStatus = 0,
+    .AWSStatus = 0
+};
+
+AWSTopicsStruct awsTopic = {
+    .techConfig = 0
+};
+
+// ==============================
+// 🔧 3. Technical Config Data
+// ==============================
+int sta = 0;
+int stb = 0;
+int ham = 0;
+int hbo = 0;
+int bct = 0;
+int bcc = 0;
+int hur = 0;
+int min = 0;
+
+// ==============================
+// 🏢 4. Business Config Data
+// ==============================
+int iid = 0;
+int itp = 0;
+char qrb_data[1024] = {0};
+uint8_t qrb_array[512];
+
+// ==============================
+// 🔥 5. Incinerator Config & Status
+// ==============================
+char IncinBatchID[50];
+int Incin_cycle = 0;
+int IncinTriggerState = 0;
+int IncinTotalNapkinBurn = 0;
+char IncinStartTime[30];
+char IncinEndTime[20];
+int isIncinerationPaused = 0;
+bool IncinTriggeredByRestart = false;
+bool IncinTriggerBySchedule = false;
+bool IncinTriggerByResume = false;
+bool IncinTriggerByInitial = false;
+
+// ==============================
+// ⏱️ 6. Time & Logging
+// ==============================
+char CurrentTimeString[22];
+char CurrentTime[30];
+time_t current_epoch = 0;
+int64_t incinTime = 0;
+int64_t insun_burn_time = 0;
+
+// ==============================
+// 💡 7. Hardware/Peripheral Status
+// ==============================
+bool I2C_Connected = false;
+bool I2cBusy = false;
+bool i2c_state_change = false;
+bool heaterA_status = false;
+bool heaterB_status = false;
+
+// ==============================
+// 🌐 8. Network & Coin Status
+// ==============================
+bool NetworkStateChanged = true;
+bool CoinStateChanged = false;
+int coin_pulse = 0;
+bool PaymentScreenActive = false;
+
+// ==============================
+// ⚙️ 9. System State Flags
+// ==============================
+// bool CustomCode = true;
+bool technicalConfigFound = false;
+bool businessConfigFound = false;
+bool isMachineConfigFound = false;
+bool ValueChanged = false;
+bool already_triggered_today = false;
+
+// ==============================
+// 📦 10. Stock & Monitoring
+// ==============================
+int StockLevel = 0;
+int TBackNoStock = 0;
+int TBackLowStock = 0;
+bool UpdateStockToServer = false;
+
+// ==============================
+// 🌡️ 11. Chamber Sensors
+// ==============================
+int chamberA_temp = 0;
+int chamberA_disp = 0;
+int chamberB_temp = 0;
+int chamberB_disp = 0;
+
+// ==============================
+// 🧾 12. Identity and Metadata
+// ==============================
+// char MAC_ID[10] = "RZ1954";
+// char MERCHANT_ID[15] = "ZEST250507";
 char MAC_ID[10] = "";
 char MERCHANT_ID[15] = "";
 char MERCH_KEY[5] = "INTG";
+char VersionNumber[6] = "2.0";
+char ImeiNumber[20]= {0};
 
+// ==============================
+// 📁 13. FTP Configuration
+// ==============================
+char FTP_PATH[128];
+char FTP_USER[64];
+char FTP_PASS[64];
+char FTP_IP[64];
+
+// ==============================
+// 📝 14. Utilities
+// ==============================
+char json_line[1024] = {0};
+bool napkinOfflineLogDataState = false;
+bool incineratorOfflineLogDataState = false;
+
+bool NeedToCheckInsunTime = false;
+bool NeededDefaultScreen = false;
+bool NeededInsuinScreen = false;
+bool InterruptForDispense = true;
+bool FotaUpdate = false;
+bool IsInstulationOperation = false;
+
+int64_t lcd_last_display_time = 0;
+int64_t lcd_insun_last_display_time = 0;
+
+// Custom Code Trigger
+bool CustomCode = true;
 static void customGpio(int param)
 {
     nwy_test_cli_echo("\r\n//-----------------------------------\r\nInterrupt Triggered\r\n-----------------------------------//\r\n");
@@ -160,51 +333,94 @@ static void nwy_test_cli_main_func(void *param)
     nwy_test_cli_get_version();
     // Custom Code 2 Execution
 
-    // GPIO Interrupt for I2C
-    int data = nwy_gpio_irq_register(I2C_IO_Pin,1,2,customGpio,NULL);
-    if (!data)
-    {
-        nwy_test_cli_echo("\r\nGpio isr register success! --- ");
+    if(CustomCode){
+        nwy_thread_sleep(100);
+        // GPIO Interrupt for I2C
+        // int data = nwy_gpio_irq_register(I2C_IO_Pin,1,2,customGpio,NULL);
+        // if (!data)
+        // {
+        //     nwy_test_cli_echo("\r\nGpio isr register success! --- ");
+        // }
+        // else
+        // {
+        //     nwy_test_cli_echo("\r\nGpio isr register failed! --- ");
+        // }
+
+        // int ret2 = nwy_gpio_irq_enable(I2C_IO_Pin);
+
+        // if(0 == ret2)
+        //     nwy_test_cli_echo(" Gpio enable isr success!\r\n");
+        // else
+        //     nwy_test_cli_echo(" Gpio enable isr fail!\r\n");
+
+        // int64_t now_us = nwy_uptime_get();
+        // nwy_test_cli_echo("Current uptime: %lld us\n", now_us);
+
+        // if (load_machine_config_values()) {
+            // Use the values...
+            nwy_test_cli_echo("\r\nMachineConfig Load Success!\r\n");
+            nwy_test_cli_echo("\r\nMAC ID: %s\r\n", MAC_ID);
+            nwy_test_cli_echo("\r\nMERCHANT ID: %s\r\n", MERCHANT_ID);
+            isMachineConfigFound = true;
+            
+        // }else{
+        //     nwy_test_cli_echo("\r\nMachineConfig Load Failed!");
+        //     // 2nd Time
+        //     if (load_machine_config_values()) {
+        //         // Use the values...
+        //         nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Success!\r\n");
+        //         nwy_test_cli_echo("\r\nMAC ID: %s\r\n", MAC_ID);
+        //         nwy_test_cli_echo("\r\nMERCHANT ID: %s\r\n", MERCHANT_ID);
+        //         isMachineConfigFound = true;
+                
+        //     }else{
+        //         nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Failed!");
+        //         isMachineConfigFound = false;
+        
+        //         lcd_init();
+        //         nwy_thread_sleep(100);
+        //         lcd_clear();
+        //         nwy_thread_sleep(100);
+        //         Display(0, PAGE2, 0, " Waiting For Machine   ");
+        //         Display(0, PAGE4, 0, "    Configuration      ");
+        //     }
+        // }
+
+        // nwy_test_i2c();
+        // nwy_test_lcd();
+
+        // For Data Connection
+        nwy_test_cli_set_profile_new();
+        nwy_thread_sleep(1000);
+        nwy_test_cli_data_start_new();
+        nwy_thread_sleep(1000);
+        nwy_thread_sleep(1000);
+        nwy_test_cli_mqtt_connect_new();
+
+        while(1){
+            nwy_test_cli_echo("\r\n===Message Received======");
+            nwy_thread_sleep(1000);
+        }
+
+    }else{
+        // -------------- Default Code ---------------
+        while (1)
+        {
+            nwy_test_cli_menu_display();
+            sptr = nwy_test_cli_input_gets("\r\nPlease input option: ");
+            if (sptr[0] == 'q' || sptr[0] == 'Q')
+            {
+                nwy_test_cli_menu_back();
+            }
+            else
+            {
+                nwy_test_cli_menu_select(atoi(sptr));
+            }
+
+        }
     }
-    else
-    {
-        nwy_test_cli_echo("\r\nGpio isr register failed! --- ");
-    }
-
-    int ret2 = nwy_gpio_irq_enable(87);
-
-    if(0 == ret2)
-        nwy_test_cli_echo(" Gpio enable isr success!\r\n");
-    else
-        nwy_test_cli_echo(" Gpio enable isr fail!\r\n");
-
-
-    // nwy_test_i2c();
-    // nwy_test_lcd();
-
-    // For Data Connection
-    nwy_test_cli_set_profile_new();
-    nwy_thread_sleep(1000);
-    nwy_test_cli_data_start_new();
-    nwy_thread_sleep(1000);
-    nwy_thread_sleep(1000);
-    nwy_test_cli_mqtt_connect_new();
-
-    // -------------- Default Code ---------------
-    // while (1)
-    // {
-    //     nwy_test_cli_menu_display();
-    //     sptr = nwy_test_cli_input_gets("\r\nPlease input option: ");
-    //     if (sptr[0] == 'q' || sptr[0] == 'Q')
-    //     {
-    //         nwy_test_cli_menu_back();
-    //     }
-    //     else
-    //     {
-    //         nwy_test_cli_menu_select(atoi(sptr));
-    //     }
-
-    // }
+    
+   
 }
 bool compare_version_prefix(const char *ver1, const char *ver2)//check string before last '-'
 {

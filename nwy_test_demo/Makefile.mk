@@ -22,7 +22,7 @@ srcs =  comm/nwy_test_cli_utils.c \
 		modules/nwy_test_cli_lbs.c \
 		modules/nwy_test_cli_loc.c \
 		modules/nwy_test_cli_iot.c \
-                modules/nwy_test_cli_mbedtls_aes.c \
+		modules/nwy_test_cli_mbedtls_aes.c \
 		nwy_test_cli_mbedtls_ssltcp.c \
 		modules/nwy_test_cli_network.c \
 		modules/nwy_test_cli_data.c \
@@ -41,4 +41,5 @@ srcs =  comm/nwy_test_cli_utils.c \
 		modules/nwy_test_temp.c\
 		CustomModules/LCD.c\
 		CustomModules/I2C.c\
+		CustomModules/Flash.c\
 endif

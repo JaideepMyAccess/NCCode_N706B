@@ -1572,11 +1572,11 @@ void nwy_test_cli_lcd_draw_line()
 
 /* GB18030 chinese code */
 static const char chinese_string[] = {
-    0xd3, 0xd0, /* ÓÐ */
-    0xb7, 0xbd, /* ·½ */
-    0xba, 0xba, /* ºº */
-    0xd7, 0xd6, /* ×Ö */
-    0xd1, 0xdd, /* ÑÝ */
+    0xd3, 0xd0, /* ï¿½ï¿½ */
+    0xb7, 0xbd, /* ï¿½ï¿½ */
+    0xba, 0xba, /* ï¿½ï¿½ */
+    0xd7, 0xd6, /* ï¿½ï¿½ */
+    0xd1, 0xdd, /* ï¿½ï¿½ */
     0xca, 0xbe, /* Ê¾ */
     '\0'};
 
@@ -2000,6 +2000,36 @@ void nwy_test_cli_fs_open(void)
         nwy_test_cli_echo("\r\nfile %s open success:%d\r\n", nwy_test_file_name, nwy_test_fs_fd);
     }
 }
+
+void nwy_test_cli_fs_open_filename(const char *filename)
+{
+    if (nwy_test_fs_fd > 0) {
+        nwy_test_cli_echo("\r\nclose current file %s first", nwy_test_file_name);
+        // return -1;  // File already open
+    }
+
+    if (filename == NULL || strlen(filename) == 0 || strlen(filename) >= NWY_FILE_NAME_MAX) {
+        nwy_test_cli_echo("\r\nInvalid filename. Must be non-empty and less than %d characters.", NWY_FILE_NAME_MAX);
+        // return -2;  // Invalid filename
+    }
+
+    memset(nwy_test_file_name, 0, sizeof(nwy_test_file_name));
+    strcpy(nwy_test_file_name, filename);
+    nwy_test_cli_echo("\r\nfile %s open", nwy_test_file_name);
+    nwy_test_fs_fd = nwy_file_open(nwy_test_file_name, NWY_WB_PLUS_MODE);
+
+    if (nwy_test_fs_fd == NWY_FS_PATH_ERR) {
+        nwy_test_cli_echo("\r\nfile name can't have path, only support current directory");
+        // return -3;  // Path not allowed
+    } else if (nwy_test_fs_fd < 0) {
+        nwy_test_cli_echo("\r\nfile %s open error: %d", nwy_test_file_name, nwy_test_fs_fd);
+        // return -4;  // Generic open error
+    } else {
+        nwy_test_cli_echo("\r\nfile %s open success: %d", nwy_test_file_name, nwy_test_fs_fd);
+        // return 0;   // Success
+    }
+}
+
 
 void nwy_test_cli_fs_write(void)
 {
