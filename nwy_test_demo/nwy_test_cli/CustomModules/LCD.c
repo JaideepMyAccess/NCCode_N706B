@@ -34,7 +34,7 @@ void nwy_test_lcd()
     nwy_test_cli_echo("\r\nPrint from LCD.c\r\n");
     nwy_thread_sleep(1000);
     nwy_test_cli_echo("\r\nPrint 2 from LCD.c\r\n");
-
+    lcd_init();
     while(1){
         char *sptr = NULL;
         sptr = nwy_test_cli_input_gets("\r\n Click Enter \r\n");
@@ -43,8 +43,8 @@ void nwy_test_lcd()
         nwy_thread_sleep(1000);
         lcd_clear();
         // nwy_thread_sleep(1000);
-        Display(0, PAGE1, 0, "|      MYACCESS     |");
-        Display(0, PAGE2, 0, "|      PRIVATE      |");
+        Display(0, PAGE1, 0, "|       ANUSHA      |");
+        Display(0, PAGE2, 0, "|            |");
         Display(0, PAGE3, 0, "|      LIMITED      |");
     }
 
@@ -54,7 +54,6 @@ void nwy_test_lcd()
 
 void lcd_main_test()
 {
-    lcd_init();
     lcd_clear();
     lcd_test_pattern();
     nwy_thread_sleep(1000);
@@ -64,14 +63,13 @@ void lcd_main_test()
 // Delay Function
 void delay_us(uint32_t us)
 {
-    volatile uint32_t count;
-    volatile uint32_t count2;
-    for (count = 0; count < us * 10; count++) // Rough delay loop
-    {
-        // dummy++;
-         __asm__("NOP");
+    // volatile uint32_t count;
+    // for (count = 0; count < us * 1; count++) // Rough delay loop
+    // {
+    //     // dummy++;
+    //     //  __asm__("NOP");
 
-    }
+    // }
 }
 
 
@@ -162,7 +160,8 @@ void spi_bitbang_send(uint8_t data)
             nwy_gpio_value_set(DISPLAY_DATA_PIN, (nwy_value_e)0);
 
         nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)1);
-        delay_us(2);
+        // delay_us(2);
+        // __asm__("NOP");
         nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)0);
         mask >>= 1;
     }
@@ -182,7 +181,8 @@ void spi_bitbang_send_image(uint8_t data)
 
         // Clock Pulse
         nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)1);
-        delay_us(2);
+        // delay_us(2);
+        __asm__("NOP");
         nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)0);
         
         mask <<= 1;
@@ -218,9 +218,109 @@ void DispNewImage(uint8_t *Adata) // Left to Right & Top to Bottom
 
         for(col = 0; col < 128; col++) // Left to right (0 to 127)
         {    
-            lcd_send_data_image(Adata[index]); // Send pixel byte
+            lcd_send_data_image2(Adata[index]); // Send pixel byte
             // lcd_send_data_image2(Adata[index]); // Send pixel byte
             index++; // Move to the next byte in image data
+        }
+    }
+}
+
+
+void DispNewImage2(uint8_t *Adata) // Left to Right & Top to Bottom
+{
+    int row, col, index = 0;
+
+    for(row = 4; row < 8; row++) // Pages from top (0) to bottom (7)
+    {
+        lcd_send_command(0xB0 | row);  // Set page address
+        lcd_send_command(0x10);        // Set column address upper nibble
+        lcd_send_command(0x00);        // Set column address lower nibble
+        
+        for(col = 0; col < 128; col++) // Left to right (0 to 127)
+        {    
+            // lcd_send_data_image(Adata[index]); // Send pixel byte
+            lcd_send_data_image2(Adata[index]); // Send pixel byte
+            index++; // Move to the next byte in image data
+			// vTaskDelay(pdMS_TO_TICKS(10)); 
+        }
+    }
+}
+
+// void DispNewImage2(uint8_t *Adata) // Left to Right & Top to Bottom
+// {
+//     int row, col, index = 0;
+
+//     for(row = 4; row < 8; row++) // Pages from top (0) to bottom (7)
+//     {
+//         lcd_send_command(0xB0 | row);  // Set page address
+//         lcd_send_command(0x10);        // Set column address upper nibble
+//         lcd_send_command(0x00);        // Set column address lower nibble
+        
+//         nwy_gpio_value_set(DISPLAY_DC_PIN, (nwy_value_e)1); 
+//         for(col = 0; col < 128; col++) // Left to right (0 to 127)
+//         {    
+//             // lcd_send_data_image(Adata[index]); // Send pixel byte
+//             // lcd_send_data_image2(Adata[index]); // Send pixel byte
+//             uint8_t inverted = ~Adata[index];
+//             uint8_t i, mask = 0x01;
+//             for (i = 0; i < 8; i++) 
+//             {
+//                 // Set Data Line
+//                 if (inverted & mask)
+//                     nwy_gpio_value_set(DISPLAY_DATA_PIN, (nwy_value_e)1);
+//                 else
+//                     nwy_gpio_value_set(DISPLAY_DATA_PIN, (nwy_value_e)0);
+
+//                 // Clock Pulse
+//                 nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)1);
+//                 // delay_us(2);
+//                 __asm__("NOP");
+//                 nwy_gpio_value_set(DISPLAY_CLK_PIN, (nwy_value_e)0);
+                
+//                 mask <<= 1;
+//             }
+
+//             index++; // Move to the next byte in image data
+// 			// vTaskDelay(pdMS_TO_TICKS(10)); 
+//         }
+//     }
+// }
+
+void DispBarImage(uint8_t *Adata) // Left to Right & Top to Bottom
+{
+    int row, col, index, page = 0;
+        LCD_SET_PAGE(page,COL);
+        lcd_send_command(0xB0 | row);  // Set page address
+        lcd_send_command(0x10);        // Set column address upper nibble
+        lcd_send_command(0x00);        // Set column address lower nibble
+    
+        LCD_SET_PAGE(page,112);
+        for(col = 112; col < 128; col++) // Left to right (0 to 127)
+        {    
+            // lcd_send_data_image(Adata[index]); // Send pixel byte
+            lcd_send_data_image2(Adata[index]); // Send pixel byte
+            index++; // Move to the next byte in image data
+			// vTaskDelay(pdMS_TO_TICKS(10)); 
+        }
+
+}
+
+void DispQRImage(uint8_t *Adata) // Left to Right & Top to Bottom
+{
+    int row, col, index = 0;
+
+    for(row = 0; row < 8; row++) // Pages from top (0) to bottom (7)
+    {
+        lcd_send_command(0xB0 | row);  // Set page address
+        lcd_send_command(0x10);        // Set column address upper nibble
+        lcd_send_command(0x00);        // Set column address lower nibble
+
+        for(col = 64; col < 128; col++) // Left to right (0 to 127)
+        {    
+            // lcd_send_data_image(Adata[index]); // Send pixel byte
+            lcd_send_data_image2(Adata[index]); // Send pixel byte
+            index++; // Move to the next byte in image data
+			// vTaskDelay(pdMS_TO_TICKS(10)); 
         }
     }
 }
@@ -229,6 +329,14 @@ void lcd_send_data_image(uint8_t data)
 {
     nwy_gpio_value_set(DISPLAY_DC_PIN, (nwy_value_e)1);  // Data Mode
     spi_bitbang_send_image(data);
+}
+
+void lcd_send_data_image2(uint8_t data)
+{
+    nwy_gpio_value_set(DISPLAY_DC_PIN, (nwy_value_e)1);  // Data Mode
+        uint8_t inverted = ~data;  // Flip all bits (logic level inversion)
+    spi_bitbang_send_image(inverted);
+
 }
 
 uint8_t alpha[95][6] ={

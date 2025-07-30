@@ -42,4 +42,5 @@ srcs =  comm/nwy_test_cli_utils.c \
 		CustomModules/LCD.c\
 		CustomModules/I2C.c\
 		CustomModules/Flash.c\
+		CustomModules/RepeatedFunctions.c\
 endif

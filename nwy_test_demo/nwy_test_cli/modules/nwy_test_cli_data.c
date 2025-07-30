@@ -7,6 +7,8 @@ static int current_open_dial_action[7] = {0};
 static int is_trigger_by_app[7] = {0};
 /**************************DATA*********************************/
 /**************************CUSTOM CODE*********************************/
+extern bool NetworkDisconnectStatus;
+extern bool NetworkConnectStatus;
 static void nwy_test_cli_data_cb_fun(int profile_idx, nwy_data_call_state_e ind_state)
 {
 
@@ -20,20 +22,18 @@ static void nwy_test_cli_data_cb_fun(int profile_idx, nwy_data_call_state_e ind_
         {
             if(is_trigger_by_app[profile_idx-1]==1)
             {
-            // if the data callback is trigger by current app , unreg the cb function
-            if(current_open_dial_action[profile_idx-1]==ind_state)
-            {
-                    nwy_test_cli_echo("\r\nData call status NWY_DATA_CALL_DISCONNECTED_STATE\r\n");
-                nwy_data_unreg_cb(nwy_data_sim_id, profile_idx,nwy_test_cli_data_cb_fun);        
-            }
-                else
+                // if the data callback is trigger by current app , unreg the cb function
+                if(current_open_dial_action[profile_idx-1]==ind_state)
                 {
-                    nwy_test_cli_echo("\r\nStart data call failed\r\n");
-                }
-            }else
-            {
+                    nwy_test_cli_echo("\r\nData call status NWY_DATA_CALL_DISCONNECTED_STATE\r\n");
+                    nwy_data_unreg_cb(nwy_data_sim_id, profile_idx,nwy_test_cli_data_cb_fun);        
+                }else{
+                        nwy_test_cli_echo("\r\nStart data call failed\r\n");
+                    }
+            }else{
                 nwy_test_cli_echo("\r\nData call status NWY_DATA_CALL_DISCONNECTED_STATE\r\n");
             }
+            NetworkConnectStatus = false;
         }
         else
         {
@@ -43,6 +43,8 @@ static void nwy_test_cli_data_cb_fun(int profile_idx, nwy_data_call_state_e ind_
             }
             nwy_test_cli_echo("\r\nData call status NWY_DATA_CALL_CONNECTED_STATE\r\n");
                 // nwy_thread_sleep(1500);
+            NetworkConnectStatus = true;
+            NetworkDisconnectStatus = false;
 
             nwy_test_cli_echo("\r\n *** From Data Callback Function *** \r\n");
             nwy_test_cli_data_info_new();
@@ -460,6 +462,47 @@ void nwy_test_cli_data_info()
     nwy_test_cli_echo("\r\nipv4:%s\r\n", addr_info.ipv4_str);
     nwy_test_cli_echo("\r\nipv6:%s\r\n", addr_info.ipv6_str);
 }
+
+void nwy_test_cli_data_stop_fixed(void)
+{
+    int ret = NWY_GEN_E_UNKNOWN;
+    nwy_data_start_call_t param = {0};
+    int pre_open_dial_action = 0;
+
+    // Hardcoded values
+    int sim_id = 0;
+    int profile_id = 1;
+    int is_auto_recon = 0;
+
+    nwy_data_sim_id = sim_id;
+
+    pre_open_dial_action = current_open_dial_action[profile_id - 1];
+    current_open_dial_action[profile_id - 1] = 0;
+
+    param.cid = profile_id;
+    param.call_auto_type = is_auto_recon;
+
+    ret = nwy_data_call_stop(sim_id, &param);
+
+    NWY_CLI_LOG("=DATA=  nwy_data_call_stop ret= %d", ret);
+
+    if (ret == NWY_GEN_E_AREADY_DISCONNECT)
+    {
+        nwy_test_cli_echo("\r\nData call in cid %d already disconnected\r\n", profile_id);
+        return;
+    }
+
+    if (ret != NWY_SUCCESS)
+    {
+        current_open_dial_action[profile_id - 1] = pre_open_dial_action;
+        nwy_test_cli_echo("\r\nStop data call fail, result<%d>\r\n", ret);
+        return;
+    }
+
+    is_trigger_by_app[profile_id - 1] = 1;
+    nwy_test_cli_echo("\r\nStop data call ...\r\n");
+}
+
 
 void nwy_test_cli_data_stop()
 {
