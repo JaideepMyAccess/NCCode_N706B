@@ -226,6 +226,19 @@ void load_techconfig_values() {
     return ;
 }
 
+void load_business_config_values_temp() {
+strncpy(qrb_data, "//D39PT09/D//PL48/T5+/b2+PXx/fT/9fH++fL9+vT3/f76+fr6+//79/X19fn18P//8Pf09PT38P////////8X3VJXU9IV/gm6FDkbttY9RLVPLwDyHHcIugN0UnQDZw+v3S6Uo4z0znJCLsjqjWra/RTUUlJW2xr/////////xxyzlTeFVSITkXfNfy8NLhuTfnCxvmZBuO237Ls7CwjMuNVlV9nNqK7EMmCIbNyymufE+M6EzJC//////////0xfX6JgOVVFkIhXfvwRK0soW0VWuKzDoJElVNGtJYCartxEqhMjb7uqQioUj8XMGoAh3Q2IBQhUqv////////96bJwKEN5V3huMG9Xpm0Vhy7phXZq1ZnqbnAnIV88RbKhjXfdXXV1hzpGIN7zfXJoRz07EDwaEOT3/////////6uT/bwH8VUn66Nioiwdf+XJeWeUwN8KIAc2ef3UIDY7KTE0uUTTNv6vFM1euZESshYAidP8moIS6/////////wwtTe0t3VTHgvbyJnTiffBXVa9TSD2tZ7nV0Hf1R9DR7s/9gwAF7ZOuMyIBj9xN+xDXpadglohasv////////8H9xcXF/cH/xeH33+n96efJ2eP95//n58XZx9PJ3cvF6+v3xcX19cH7z8PP+93X6dfb1cXN+ePd/////////8=", sizeof(qrb_data) - 1);
+  nwy_test_cli_echo("qrb_data:\n%s\n", qrb_data);
+
+    int decoded_len = base64_decode(qrb_data, qrb_array, sizeof(qrb_array));
+    if (decoded_len > 0) {
+        nwy_test_cli_echo("\n\nDecoded (%d bytes):\n", decoded_len);
+        print_hex(qrb_array, 512);
+    } else {
+        nwy_test_cli_echo("Base64 decode failed.\n");
+    }
+
+}
 void load_business_config_values() {
     char buffer[2048] = {0};  // Large buffer for QRB base64
     int fd = -1, len = 0;

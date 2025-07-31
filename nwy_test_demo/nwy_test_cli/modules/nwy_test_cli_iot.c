@@ -1846,11 +1846,11 @@ void nwy_test_cli_mqtt_connect_new()
 
         nwy_thread_sleep(2000);
 
-        send_initial_config();
-        nwy_thread_sleep(2000);
-        req_config(1);
-        nwy_thread_sleep(2000);
-        req_config(3);
+        // send_initial_config();
+        // nwy_thread_sleep(2000);
+        // req_config(1);
+        // nwy_thread_sleep(2000);
+        // req_config(3);
 
         // if(strcmp(MAC_ID, "") == 0 | strcmp(MERCH_KEY, "") == 0){
         //     nwy_test_cli_echo("MAC ID and Merchant Key are not set. Waiting for Configuration \n");
@@ -1878,6 +1878,8 @@ void nwy_test_cli_mqtt_connect_new()
         //         nwy_thread_sleep(5000);
         //     }
         // }
+
+        load_business_config_values_temp();
     }
 }
 

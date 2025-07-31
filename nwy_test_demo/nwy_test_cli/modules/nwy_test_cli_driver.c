@@ -1991,7 +1991,7 @@ void nwy_test_cli_fs_open(void)
         return;
     }
     strcpy(nwy_test_file_name, sptr);
-    nwy_test_fs_fd = nwy_file_open(nwy_test_file_name, NWY_WB_PLUS_MODE);
+    nwy_test_fs_fd = nwy_file_open(nwy_test_file_name, NWY_AB_MODE);
     if (nwy_test_fs_fd == NWY_FS_PATH_ERR) {
         nwy_test_cli_echo("\r\nfile name can't with path,only support current directory\r\n");
     } else if (nwy_test_fs_fd < 0) {

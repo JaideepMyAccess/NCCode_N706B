@@ -183,20 +183,20 @@ AWSTopicsStruct awsTopic = {
 // ==============================
 // 🔧 3. Technical Config Data
 // ==============================
-int sta = 0;
-int stb = 0;
-int ham = 0;
-int hbo = 0;
-int bct = 0;
-int bcc = 0;
-int hur = 0;
+int sta = 950;
+int stb = 650;
+int ham = 900;
+int hbo = 600;
+int bct = 40;
+int bcc = 10;
+int hur = 18;
 int min = 0;
 
 // ==============================
 // 🏢 4. Business Config Data
 // ==============================
-int iid = 0;
-int itp = 0;
+int iid = 8;
+int itp = 10;
 char qrb_data[1024] = {0};
 uint8_t qrb_array[512];
 
