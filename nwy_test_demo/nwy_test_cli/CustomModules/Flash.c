@@ -85,7 +85,7 @@ JsonParser parse_json(const char *json_string) {
 
     if (parser.token_count < 0) {
         nwy_test_cli_echo("JSON parsing Fail!\n");
-        free(parser.json);
+        // free(parser.json);
         parser.json = NULL;
     }
     return parser;
@@ -178,19 +178,19 @@ void print_hex(unsigned char *data, int len) {
     nwy_test_cli_echo("\n");
 }
 
-void load_techconfig_values() {
+bool load_techconfig_values() {
     char buffer[256] = {0};
     int fd = -1, len = 0;
 
     if (!nwy_file_exist("techconfig")) {
         nwy_test_cli_echo("techconfig file not found!\n");
-        return ;
+        return false;
     }
 
     fd = nwy_file_open("techconfig", NWY_RDONLY);
     if (fd < 0) {
         nwy_test_cli_echo("Failed to open techconfig file\n");
-        return ;
+        return false;
     }
 
     len = nwy_file_read(fd, buffer, sizeof(buffer) - 1);
@@ -198,7 +198,7 @@ void load_techconfig_values() {
 
     if (len <= 0) {
         nwy_test_cli_echo("techconfig file is empty or read failed\n");
-        return ;
+        return false;
     }
 
     buffer[len] = '\0'; // Null-terminate to safely parse as string
@@ -207,7 +207,7 @@ void load_techconfig_values() {
     JsonParser parser = parse_json(buffer);
     if (!parser.json) {
         nwy_test_cli_echo("Failed to parse JSON in techconfig\n");
-        return ;
+        return false;
     }
 
     sta = atoi(get_json_value(&parser, "sta"));
@@ -222,8 +222,8 @@ void load_techconfig_values() {
     nwy_test_cli_echo("TechConfig loaded: sta=%d, stb=%d, ham=%d, hbo=%d, bct=%d, hur=%d, min=%d, bcc=%d\n",
                       sta, stb, ham, hbo, bct, hur, min, bcc);
 
-    free_json_parser(&parser);
-    return ;
+    // free_json_parser(&parser);
+    return true;
 }
 
 void load_business_config_values_temp() {
@@ -245,13 +245,13 @@ void load_business_config_values() {
 
     if (!nwy_file_exist("businessconfig")) {
         nwy_test_cli_echo("businessconfig file not found!\n");
-        return ;
+        return false;
     }
 
     fd = nwy_file_open("businessconfig", NWY_RDONLY);
     if (fd < 0) {
         nwy_test_cli_echo("Failed to open businessconfig file\n");
-        return ;
+        return false;
     }
 
     len = nwy_file_read(fd, buffer, sizeof(buffer) - 1);
@@ -259,7 +259,7 @@ void load_business_config_values() {
 
     if (len <= 0) {
         nwy_test_cli_echo("businessconfig file is empty or read failed\n");
-        return ;
+        return false;
     }
 
     buffer[len] = '\0';  // Ensure null termination
@@ -268,7 +268,7 @@ void load_business_config_values() {
     JsonParser parser = parse_json(buffer);
     if (!parser.json) {
         nwy_test_cli_echo("Failed to parse JSON in businessconfig\n");
-        return ;
+        return false;
     }
 
     // Extract values
@@ -291,28 +291,28 @@ void load_business_config_values() {
         nwy_test_cli_echo("Base64 decode failed.\n");
     }
 
-    // Cleanup
-    free_json_parser(&parser);
-    if (iid_str) free(iid_str);
-    if (itp_str) free(itp_str);
-    if (qrb_str) free(qrb_str);
+    // // Cleanup
+    // free_json_parser(&parser);
+    // if (iid_str) free(iid_str);
+    // if (itp_str) free(itp_str);
+    // if (qrb_str) free(qrb_str);
 
-    return ;
+    return true;
 }
 
-void load_machine_config_values() {
+bool load_machine_config_values() {
     char buffer[256] = {0};
     int fd = -1, len = 0;
 
     if (!nwy_file_exist("machineconfig")) {
         nwy_test_cli_echo("machineconfig file not found!\n");
-        return ;
+        return false;
     }
 
     fd = nwy_file_open("machineconfig", NWY_RDONLY);
     if (fd < 0) {
         nwy_test_cli_echo("Failed to open machineconfig file\n");
-        return ;
+        return false;
     }
 
     len = nwy_file_read(fd, buffer, sizeof(buffer) - 1);
@@ -320,7 +320,7 @@ void load_machine_config_values() {
 
     if (len <= 0) {
         nwy_test_cli_echo("machineconfig file is empty or read failed\n");
-        return ;
+        return false;
     }
 
     buffer[len] = '\0';  // Null-terminate the JSON string
@@ -329,7 +329,7 @@ void load_machine_config_values() {
     JsonParser parser = parse_json(buffer);
     if (!parser.json) {
         nwy_test_cli_echo("Failed to parse JSON in machineconfig\n");
-        return ;
+        return false;
     }
 
     char *mid_str = get_json_value(&parser, "mid");
@@ -343,11 +343,11 @@ void load_machine_config_values() {
     
     nwy_test_cli_echo("MachineConfig loaded: MAC_ID=%s, MERCHANT_ID=%s\n", MAC_ID, MERCHANT_ID);    
 
-    free_json_parser(&parser);
-    if (mid_str) free(mid_str);
-    if (mnt_str) free(mnt_str);
+    // free_json_parser(&parser);
+    // if (mid_str) free(mid_str);
+    // if (mnt_str) free(mnt_str);
 
-    return ;
+    return true;
 }
 
 void save_incin_config_values() {
@@ -426,13 +426,13 @@ void load_incin_config_values() {
     nwy_test_cli_echo("IncinConfig loaded: paused=%d, batch_id=%s, cycle=%d, total_burn=%d, start_time=%s, trigger_state=%d\n",
         isIncinerationPaused, IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, IncinTriggerState);
 
-    free_json_parser(&parser);
-    if (paused_str) free(paused_str);
-    if (batch_str) free(batch_str);
-    if (cycle_str) free(cycle_str);
-    if (burn_str) free(burn_str);
-    if (start_str) free(start_str);
-    if (trigger_str) free(trigger_str);
+    // free_json_parser(&parser);
+    // if (paused_str) free(paused_str);
+    // if (batch_str) free(batch_str);
+    // if (cycle_str) free(cycle_str);
+    // if (burn_str) free(burn_str);
+    // if (start_str) free(start_str);
+    // if (trigger_str) free(trigger_str);
 
     return ;
 }

@@ -894,6 +894,8 @@ extern char ImeiNumber[20];
 extern char MAC_ID[10];
 extern char MERCHANT_ID[15];
 extern char MERCH_KEY[5];
+// extern void lcd_clear(void);
+
 // Replace these with actual certificates
 const char AWS_CA_CERT[] = "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\r\n"
@@ -1035,23 +1037,23 @@ void messageArrived(MessageData *md)
     nwy_test_cli_echo("\r\nTopic Name: %s:\r\n", topic_name);
     remain_len = md->message->payloadlen;
 
-    if (md->message->payloadlen > NWY_EXT_SIO_PER_LEN)
-    {
-        for (i = 0; i < ((md->message->payloadlen / NWY_EXT_SIO_PER_LEN) + 1); i++)
-        {
-            memset(echo_buff, 0, sizeof(echo_buff));
-            strncpy(echo_buff, md->message->payload + i * NWY_EXT_SIO_PER_LEN,
-                    remain_len > NWY_EXT_SIO_PER_LEN ? NWY_EXT_SIO_PER_LEN : remain_len);
-            remain_len = md->message->payloadlen - (i + 1) * NWY_EXT_SIO_PER_LEN;
-            nwy_test_cli_echo(echo_buff);
-        }
-    }
-    else
-    {
-        memset(echo_buff, 0, sizeof(echo_buff));
-        strncpy(echo_buff, md->message->payload, md->message->payloadlen);
-        nwy_test_cli_echo(echo_buff);
-    }
+    // if (md->message->payloadlen > NWY_EXT_SIO_PER_LEN)
+    // {
+    //     for (i = 0; i < ((md->message->payloadlen / NWY_EXT_SIO_PER_LEN) + 1); i++)
+    //     {
+    //         memset(echo_buff, 0, sizeof(echo_buff));
+    //         strncpy(echo_buff, md->message->payload + i * NWY_EXT_SIO_PER_LEN,
+    //                 remain_len > NWY_EXT_SIO_PER_LEN ? NWY_EXT_SIO_PER_LEN : remain_len);
+    //         remain_len = md->message->payloadlen - (i + 1) * NWY_EXT_SIO_PER_LEN;
+    //         nwy_test_cli_echo(echo_buff);
+    //     }
+    // }
+    // else
+    // {
+    //     memset(echo_buff, 0, sizeof(echo_buff));
+    //     strncpy(echo_buff, md->message->payload, md->message->payloadlen);
+    //     nwy_test_cli_echo(echo_buff);
+    // }
 
     memset(echo_buff, 0, sizeof(echo_buff));
     strncpy(echo_buff, md->message->payload, md->message->payloadlen);
@@ -1061,570 +1063,89 @@ void messageArrived(MessageData *md)
     nwy_thread_sleep(1000);
     nwy_test_cli_get_heap_info();
     
-    // if (strcmp(topic_name, STPayment) == 0){
-    // nwy_test_cli_echo("Payment Message Received\n");
-
-    // // Parse JSON once
-    // JsonParser parser = parse_json(echo_buff);
-
-    // if (parser.json){
-    //     // Extract "oid" value
-    //     char *oid_value = get_json_value(&parser, "oid");
-    //     if (oid_value)
-    //     {
-    //         nwy_test_cli_echo("Extracted OID: %s\n", oid_value);
-    //     }
-    //     else
-    //     {
-    //         nwy_test_cli_echo("OID key not found!\n");
-    //     }
-
-    //     // Extract "mid" value
-    //     char *mid_value = get_json_value(&parser, "mid");
-    //     if (mid_value)
-    //     {
-    //         nwy_test_cli_echo("Extracted MID: %s\n", mid_value);
-    //     }
-
-    //     // Replace uptime calls with nwy_uptime_get
-    //     lcd_insun_last_display_time = nwy_uptime_get();
-    //     lcd_last_display_time = nwy_uptime_get();
-
-    //     nwy_test_cli_echo("*********************** Motor Turned ON ************************");
-
-    //     uint8_t new_cmd_flag[8] = {0x0f, 0x01, 0x10, 0xbb, 0x00, 0x00, 0x00, 0x00};
-    //     memcpy(cmd_flag, new_cmd_flag, sizeof(cmd_flag));
-    //     nwy_i2c_send_data();
-    //     nwy_thread_sleep(100);
-
-    //     PaymentScreenActive = false;
-
-    //     uint8_t new_cmd_flag3[8] = {0x04, 0x00, 0x04, 0xBB, 0x00, 0x00, 0x00, 0x00};
-    //     memcpy(cmd_flag, new_cmd_flag3, sizeof(cmd_flag));
-    //     nwy_i2c_send_data();
-    //     nwy_thread_sleep(100);
-
-    //     lcd_clear();
-    //     Display(0, PAGE3, 0, " !!   DISPENSING   !!");
-    //     Display(0, PAGE6, 0, "        NAPKIN       ");
-
-    //     nwy_thread_sleep(1000);
-
-    //     nwy_test_cli_echo("*********************** Motor Turned OFF ************************");
-
-    //     nwy_thread_sleep(2000);
-
-    //     lcd_clear();
-    //     Display(0, PAGE3, 0, "     COLLECT YOUR     ");
-    //     Display(0, PAGE6, 0, "        NAPKIN       ");
-
-    //     uint8_t new_cmd_flag4[8] = {0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00};
-    //     memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
-    //     nwy_i2c_send_data();
-    //     nwy_thread_sleep(100);
-
-    //     // // Send dispense response
-    //     // send_dispense_order_message(
-    //     //     oid_value,            // Order ID
-    //     //     1,                    // Success
-    //     //     0,                    // Error Code
-    //     //     machineReadings.StockStatus,
-    //     //     200,                 // CRC
-    //     //     1,                   // Mode: 1 = Offline
-    //     //     177, 83              // Sample Values
-    //     // );
-
-    //     nwy_thread_sleep(2000);
-
-    //     lcd_clear();
-    //     Display(0, PAGE2, 0, "   THANKS FOR USING  ");
-    //     Display(0, PAGE4, 0, "      BMC HYGIENE    ");
-    //     Display(0, PAGE6, 0, "       FACILITY      ");
-
-    //     // Delay screen timeout by 5 seconds
-    //     lcd_last_display_time = nwy_uptime_get() - 5000000;
-    //     lcd_insun_last_display_time = nwy_uptime_get() - 5000000;
-
-    //     NeededDefaultScreen = true;
-    //     NeedToCheckInsunTime = true;
-    //     InterruptForDispense = IsInstulationOperation ? true : false;
-    //     free_json_parser(&parser);
-    //     }else{
-    //         nwy_test_cli_echo("JSON parsing Fail for Payment Message!\n");
-    //     }
+    // For Machine Configuration
+    if( strcmp(topic_name, STIMEIConfig) == 0 ){
         
-    // }else if (strcmp(topic_name, STTechConfig) == 0){
-    //     nwy_test_cli_echo("Tech Config Message Received\n");
-
-    //     JsonParser parser = parse_json(echo_buff);
-
-    //     if (parser.json)
-    //     {
-    //         int icr_idx = find_token_index(&parser, "icr", 0);
-    //         if (icr_idx != -1 && parser.tokens[icr_idx].type == JSMN_OBJECT)
-    //         {
-    //             int ira_idx = find_token_index(&parser, "ira", icr_idx);
-    //             if (ira_idx != -1 && parser.tokens[ira_idx].type == JSMN_OBJECT)
-    //             {
-    //                 int sta_idx = find_token_index(&parser, "sta", ira_idx);
-    //                 int stb_idx = find_token_index(&parser, "stb", ira_idx);
-    //                 int ham_idx = find_token_index(&parser, "ham", ira_idx);
-    //                 int hbo_idx = find_token_index(&parser, "hbo", ira_idx);
-    //                 int bct_idx = find_token_index(&parser, "bct", ira_idx);
-    //                 int bcc_idx = find_token_index(&parser, "bcc", ira_idx);
-    //                 int act_idx = find_token_index(&parser, "act", ira_idx);
-
-    //                 int hur_idx = -1, min_idx = -1;
-
-    //                 if (act_idx != -1 && parser.tokens[act_idx].type == JSMN_OBJECT)
-    //                 {
-    //                     hur_idx = find_token_index(&parser, "hur", act_idx);
-    //                     min_idx = find_token_index(&parser, "min", act_idx);
-    //                 }
-
-    //                 // Extract values
-    //                 if (sta_idx != -1) sta = atoi(parser.json + parser.tokens[sta_idx].start);
-    //                 if (stb_idx != -1) stb = atoi(parser.json + parser.tokens[stb_idx].start);
-    //                 if (ham_idx != -1) ham = atoi(parser.json + parser.tokens[ham_idx].start);
-    //                 if (hbo_idx != -1) hbo = atoi(parser.json + parser.tokens[hbo_idx].start);
-    //                 if (bct_idx != -1) bct = atoi(parser.json + parser.tokens[bct_idx].start);
-    //                 if (bcc_idx != -1) bcc = atoi(parser.json + parser.tokens[bcc_idx].start);
-    //                 if (hur_idx != -1) hur = atoi(parser.json + parser.tokens[hur_idx].start);
-    //                 if (min_idx != -1) min = atoi(parser.json + parser.tokens[min_idx].start);
-
-    //                 char config_json[512];
-    //                 snprintf(config_json, sizeof(config_json),
-    //                         "{\"sta\":%d,\"stb\":%d,\"ham\":%d,\"hbo\":%d,\"bct\":%d,\"hur\":%d,\"min\":%d,\"bcc\":%d}",
-    //                         sta, stb, ham, hbo, bct, hur, min, bcc);
-    //                 nwy_test_cli_echo("TechConfig: %s\n", config_json);
-
-    //                 int fd = 0;
-    //                 // int fd = nwy_file_open("techconfig", NWY_CREAT | NWY_RDWR | NWY_TRUNC);
-    //                 if (fd >= 0)
-    //                 {
-    //                     // nwy_file_write(fd, config_json, strlen(config_json));
-    //                     // nwy_file_close(fd);
-    //                     nwy_test_cli_echo("TechConfig saved to file: %s\n", config_json);
-
-    //                     lcd_clear();
-    //                     Display(0, PAGE2, 0, "   Technical Config ");
-    //                     Display(0, PAGE4, 0, "       Updated      ");
-    //                     Display(0, PAGE6, 0, "    Successfully    ");
-    //                     send_config_ack(1, 2);
-    //                     already_triggered_today = false;
-    //                 }
-    //                 else
-    //                 {
-    //                     nwy_test_cli_echo("Failed to open file techconfig for writing.\n");
-
-    //                     lcd_clear();
-    //                     Display(0, PAGE2, 0, "   Technical Config ");
-    //                     Display(0, PAGE4, 0, "       Update       ");
-    //                     Display(0, PAGE6, 0, "       Failed       ");
-    //                     send_config_ack(1, 3);
-    //                 }
-
-    //                 if (IsInstulationOperation)
-    //                 {
-    //                     lcd_insun_last_display_time = nwy_uptime_get() - 5000000;
-    //                     nwy_test_cli_echo("**************** Insuin Screen State True *******************");
-    //                     NeedToCheckInsunTime = true;
-    //                     NeededInsuinScreen = true;
-    //                     InterruptForDispense = true;
-    //                 }
-    //                 else
-    //                 {
-    //                     lcd_last_display_time = nwy_uptime_get() - 5000000;
-    //                     NeededDefaultScreen = true;
-    //                     InterruptForDispense = false;
-    //                     NeededInsuinScreen = false;
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 nwy_test_cli_echo("ira key not found!\n");
-    //             }
-    //         }
-    //         else
-    //         {
-    //             nwy_test_cli_echo("icr key not found!\n");
-    //         }
-    //     }else{
-    //         nwy_test_cli_echo("JSON parsing failed for Tech Config Message!\n");
-    //     }
-
-    //     // free_json_parser(&parser);
-    // }else if (strcmp(topic_name, STBusinessConfig) == 0){
-    //     nwy_test_cli_echo("Business Config Message Received\n");
-
-    //     JsonParser parser = parse_json(echo_buff);
-
-    //     if (parser.json)
-    //     {
-    //         int iid_idx = find_token_index(&parser, "iid", 0);
-    //         int itp_idx = find_token_index(&parser, "itp", 0);
-    //         int qrb_idx = find_token_index(&parser, "qrb", 0);
-
-    //         if (iid_idx != -1)
-    //             iid = atoi(parser.json + parser.tokens[iid_idx].start);
-
-    //         if (itp_idx != -1)
-    //             itp = atoi(parser.json + parser.tokens[itp_idx].start);
-
-    //         if (qrb_idx != -1)
-    //         {
-    //             int len = parser.tokens[qrb_idx].end - parser.tokens[qrb_idx].start;
-    //             strncpy(qrb_data, parser.json + parser.tokens[qrb_idx].start, len);
-    //             qrb_data[len] = '\0';
-    //         }
-
-    //         char config_json[2048];
-    //         snprintf(config_json, sizeof(config_json),
-    //                 "{\"iid\":%d,\"itp\":%d,\"qrb\":\"%s\"}", iid, itp, qrb_data);
-    //         nwy_test_cli_echo("BusinessConfig: %s\n", config_json);
-
-    //         int fd = 0;
-    //         // int fd = nwy_file_open("businessconfig", NWY_CREAT | NWY_RDWR | NWY_TRUNC);
-    //         if (fd >= 0)
-    //         {
-    //             // nwy_file_write(fd, config_json, strlen(config_json));
-    //             // nwy_file_close(fd);
-    //             nwy_test_cli_echo("BusinessConfig saved to file: %s\n", config_json);
-
-    //             lcd_clear();
-    //             Display(0, PAGE2, 0, "   Business  Config ");
-    //             Display(0, PAGE4, 0, "       Updated      ");
-    //             Display(0, PAGE6, 0, "    Successfully    ");
-
-    //             send_config_ack(3, 2);
-    //         }
-    //         else
-    //         {
-    //             nwy_test_cli_echo("Failed to open file businessconfig for writing.\n");
-
-    //             lcd_clear();
-    //             Display(0, PAGE2, 0, "   Business  Config ");
-    //             Display(0, PAGE4, 0, "       Update       ");
-    //             Display(0, PAGE6, 0, "       Failed       ");
-
-    //             send_config_ack(3, 3);
-    //         }
-
-    //         ValueChanged = true;
-
-    //         if (IsInstulationOperation)
-    //         {
-    //             lcd_insun_last_display_time = nwy_uptime_get() - 5000000;
-    //             nwy_test_cli_echo("**************** Insuin Screen State True *******************");
-    //             NeedToCheckInsunTime = true;
-    //             NeededInsuinScreen = true;
-    //             InterruptForDispense = true;
-    //         }
-    //         else
-    //         {
-    //             lcd_last_display_time = nwy_uptime_get() - 5000000;
-    //             NeededDefaultScreen = true;
-    //             InterruptForDispense = false;
-    //             NeededInsuinScreen = false;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         nwy_test_cli_echo("JSON parsing failed for Business Config Message!\n");
-    //     }
-
-    //     // free_json_parser(&parser);
-    // }else if (strcmp(topic_name, STIMEIConfig) == 0){
-    //         nwy_test_cli_echo("Machine Configuration Found\n");
-    // nwy_test_cli_get_heap_info();
-
-    //     JsonParser parser = parse_json(echo_buff);  // use echo_buff instead of payload
-    // nwy_test_cli_get_heap_info();
-
-    //     if (parser.json)
-    //     {
-    //     nwy_test_cli_echo("Stage 1\n");
-    // nwy_test_cli_get_heap_info();
-
-    //         int mid_idx = find_token_index(&parser, "mid", 0);
-    //         int mnt_idx = find_token_index(&parser, "mnt", 0);
-    //     nwy_test_cli_echo("Stage 2\n");
-    // nwy_test_cli_get_heap_info();
-
-    //         if (mid_idx != -1)
-    //         {
-    //             int len = parser.tokens[mid_idx].end - parser.tokens[mid_idx].start;
-    //             strncpy(MAC_ID, parser.json + parser.tokens[mid_idx].start, len);
-    //             MAC_ID[len] = '\0';
-    //         }
-
-    //         if (mnt_idx != -1)
-    //         {
-    //             int len = parser.tokens[mnt_idx].end - parser.tokens[mnt_idx].start;
-    //             strncpy(MERCHANT_ID, parser.json + parser.tokens[mnt_idx].start, len);
-    //             MERCHANT_ID[len] = '\0';
-    //         }
-    //     nwy_test_cli_echo("Stage 3\n");
-    // nwy_test_cli_get_heap_info();
-
-    //     char config_json[128];
-    //     snprintf(config_json, sizeof(config_json),
-    //             "{\"mid\":\"%s\",\"mnt\":\"%s\"}", MAC_ID, MERCHANT_ID);
-    //     nwy_test_cli_echo("Machine Config: %s\n",config_json);
-
-    //     nwy_test_cli_echo("Stage 4\n");
-    // nwy_test_cli_get_heap_info();
-
-    //     // int fd = nwy_file_open("machineconfig",NWY_WB_PLUS_MODE);
-    //     int fd = 0;
-    //     // int fd = nwy_test_cli_fs_open_filename("machineconfig");
-    //         nwy_test_cli_echo("Stage 5\n");
-    //         nwy_test_cli_get_heap_info();
-
-    //         if (fd >= 0)
-    //         {
-    //             nwy_test_cli_echo("Stage 6\n");
-
-    //             // nwy_file_write(fd, config_json, strlen(config_json));
-    //             // nwy_file_close(fd);
-
-    //             nwy_test_cli_echo("MachineConfig saved: %s\n", config_json);
-    //             nwy_test_cli_get_heap_info();
-
-    //             send_config_ack(5, 2);
-    //             nwy_test_cli_get_heap_info();
-
-    //             char machineIDDisplay[22];
-    //             lcd_clear();
-    //             sprintf(machineIDDisplay, " Machine ID : %s", MAC_ID);
-
-    //             char VersionIDDisplay[22];
-    //             sprintf(VersionIDDisplay, " SW Version : %s", VersionNumber);
-    //             Display(0, PAGE2, 0, VersionIDDisplay);
-    //             Display(0, PAGE3, 0, machineIDDisplay);
-
-    //             // delete_file_by_name("incinConfig");
-    //             // delete_file_by_name("businessconfig");
-    //             // delete_file_by_name("techconfig");
-
-    //             nwy_thread_sleep(1000);
-
-    //             Display(0, PAGE5, 0, "   Please  Restart  ");
-    //             Display(0, PAGE7, 0, "     The Machine    ");
-
-    //             nwy_thread_sleep(5000);
-
-    //             nwy_test_cli_echo("Restart the Module\n");
-    //             nwy_test_cli_echo("Stage 7\n");
-    //             nwy_test_cli_get_heap_info();
-
-    //         }else{
-    //             nwy_test_cli_echo("Stage 8\n");
-
-    //             nwy_test_cli_echo("Failed to open machineconfig for writing.\n");
-    //             send_config_ack(5, 3);
-
-    //             lcd_clear();
-    //             Display(0, PAGE2, 0, "     Init  Config   ");
-    //             Display(0, PAGE4, 0, "       Update       ");
-    //             Display(0, PAGE6, 0, "       Failed       ");
-
-    //             if (IsInstulationOperation)
-    //             {
-    //                 lcd_insun_last_display_time = nwy_uptime_get() - 5000000;
-    //                 nwy_test_cli_echo("**************** Insuin Screen State True *******************");
-    //                 NeedToCheckInsunTime = true;
-    //                 NeededInsuinScreen = true;
-    //                 InterruptForDispense = true;
-    //             }
-    //             else
-    //             {
-    //                 lcd_last_display_time = nwy_uptime_get() - 5000000;
-    //                 NeededDefaultScreen = true;
-    //                 InterruptForDispense = false;
-    //                 NeededInsuinScreen = false;
-    //             }
-    //         }
-    //     }
-    //     else
-    //     {
-    //         nwy_test_cli_echo("JSON parsing failed for Machine Config Message!\n");
-    //     }
-
-    //     // free_json_parser(&parser);
-    // }else if (strcmp(topic_name, STReqConfig) == 0){
-    //         nwy_test_cli_echo("Config Request Message Received\n");
-
-    //     lcd_init();
-    //     lcd_clear();
-    //     Display(0, PAGE2, 0, "   CONFIG REQUEST   ");
-    //     Display(0, PAGE4, 0, "      RECEIVED      ");
-    //     Display(0, PAGE6, 0, "   SENDING CONFIG   ");
-
-    //     char json_payload[1024];
-
-    //     // Fetch current time
-    //     FetchCurrentTimeF1();// **********
-    //     sprintf(CurrentTime, "%s", CurrentTimeString);
-
-    //     // Prepare JSON config response
-    //     snprintf(json_payload, sizeof(json_payload),
-    //         "{"
-    //         "\"mnt\": \"%s\","
-    //         "\"mid\": \"%s\","
-    //         "\"cts\": \"%s\","
-    //         "\"key\": \"ABAB\","
-    //         "\"crc\": 200,"
-    //         "\"icr\": {"
-    //         "   \"ira\": {"
-    //         "       \"act\": {"
-    //         "           \"hur\": %d,"
-    //         "           \"min\": %d"
-    //         "       },"
-    //         "       \"bcc\": %d,"
-    //         "       \"bct\": %d,"
-    //         "       \"cta\": 0,"
-    //         "       \"ctb\": 0,"
-    //         "       \"ham\": %d,"
-    //         "       \"hbo\": %d,"
-    //         "       \"sta\": %d,"
-    //         "       \"stb\": %d"
-    //         "   }"
-    //         "},"
-    //         "\"iid\": %d,"
-    //         "\"itp\": %d,"
-    //         "\"has\": %d,"
-    //         "\"hbs\": %d,"
-    //         "\"qid\": \"\""
-    //         "}",
-    //         MERCHANT_ID, MAC_ID, CurrentTime,
-    //         hur, min,
-    //         bcc, bct,
-    //         ham, hbo, sta, stb,
-    //         iid, itp,
-    //         heaterA_status ? 1 : 0,
-    //         heaterB_status ? 1 : 0
-    //     );
-
-    //     // Prepare MQTT message
-    //     nwy_mqtt_publish_data(PTReqConfig, json_payload);
-
-    //     // Display behavior based on operation mode
-    //     if (IsInstulationOperation)
-    //     {
-    //         lcd_insun_last_display_time = nwy_uptime_get() + 10000000;
-    //         nwy_test_cli_echo("**************** Insuin Screen State True *******************");
-    //         NeedToCheckInsunTime = true;
-    //         NeededInsuinScreen = true;
-    //         InterruptForDispense = true;
-    //     }
-    //     else
-    //     {
-    //         lcd_last_display_time = nwy_uptime_get() + 10000000;
-    //         NeededDefaultScreen = true;
-    //         InterruptForDispense = false;
-    //         NeededInsuinScreen = false;
-    //     }
-    // }else if (strcmp(topic_name, STIMEIConfigFota) == 0){
-    //     nwy_test_cli_echo("FOTA Request Received\n");
-
-    //     lcd_init();
-    //     lcd_clear();
-    //     Display(0, PAGE2, 0, "    FOTA REQUEST    ");
-    //     Display(0, PAGE4, 0, "      RECEIVED      ");
-    //     Display(0, PAGE6, 0, "  PROCESS STARTED   ");
-
-    //     JsonParser parser = parse_json(echo_buff);  // use echo_buff instead of payload
-
-    //     if (parser.json)
-    //     {
-    //         int ack_idx = find_token_index(&parser, "ack", 0);
-
-    //         if (ack_idx != -1)
-    //         {
-    //             int len = parser.tokens[ack_idx].end - parser.tokens[ack_idx].start;
-    //             char ack_val[4] = {0};
-    //             strncpy(ack_val, parser.json + parser.tokens[ack_idx].start, len);
-    //             ack_val[len] = '\0';
-
-    //             if (strcmp(ack_val, "1") == 0)
-    //             {
-    //                 nwy_test_cli_echo("############### FOTA Acknowledgement True\n");
-
-    //                 // Save path
-    //                 int pat_idx = find_token_index(&parser, "pat", 0);
-    //                 if (pat_idx != -1)
-    //                 {
-    //                     int len = parser.tokens[pat_idx].end - parser.tokens[pat_idx].start;
-    //                     strncpy(FTP_PATH, parser.json + parser.tokens[pat_idx].start, len);
-    //                     FTP_PATH[len] = '\0';
-    //                 }
-
-    //                 // Save FTP username
-    //                 int ftu_idx = find_token_index(&parser, "ftu", 0);
-    //                 if (ftu_idx != -1)
-    //                 {
-    //                     int len = parser.tokens[ftu_idx].end - parser.tokens[ftu_idx].start;
-    //                     strncpy(FTP_USER, parser.json + parser.tokens[ftu_idx].start, len);
-    //                     FTP_USER[len] = '\0';
-    //                 }
-
-    //                 // Save FTP password
-    //                 int ftp_idx = find_token_index(&parser, "ftp", 0);
-    //                 if (ftp_idx != -1)
-    //                 {
-    //                     int len = parser.tokens[ftp_idx].end - parser.tokens[ftp_idx].start;
-    //                     strncpy(FTP_PASS, parser.json + parser.tokens[ftp_idx].start, len);
-    //                     FTP_PASS[len] = '\0';
-    //                 }
-
-    //                 // Save FTP IP
-    //                 int fti_idx = find_token_index(&parser, "fti", 0);
-    //                 if (fti_idx != -1)
-    //                 {
-    //                     int len = parser.tokens[fti_idx].end - parser.tokens[fti_idx].start;
-    //                     strncpy(FTP_IP, parser.json + parser.tokens[fti_idx].start, len);
-    //                     FTP_IP[len] = '\0';
-    //                 }
-
-    //                 nwy_test_cli_echo("Decoded FTP Config:\r\nPath: %s\r\nUser: %s\r\nPass: %s\r\nIP: %s\r\n",
-    //                                 FTP_PATH, FTP_USER, FTP_PASS, FTP_IP);
-
-    //                 send_config_ack(4, 1);
-
-    //                 if (IsInstulationOperation)
-    //                 {
-    //                     lcd_insun_last_display_time = nwy_uptime_get() + 10000000;
-    //                     nwy_test_cli_echo("**************** Insuin Screen State True *******************");
-    //                     NeedToCheckInsunTime = true;
-    //                     NeededInsuinScreen = true;
-    //                     InterruptForDispense = true;
-    //                 }
-    //                 else
-    //                 {
-    //                     lcd_last_display_time = nwy_uptime_get() + 10000000;
-    //                     NeededDefaultScreen = true;
-    //                     InterruptForDispense = false;
-    //                     NeededInsuinScreen = false;
-    //                 }
-
-    //                 nwy_thread_sleep(2000);
-    //                 FotaUpdate = true;
-
-    //                 // nwy_ftp_login_hardcoded(); // optionally uncomment
-    //             }
-    //             else
-    //             {
-    //                 nwy_test_cli_echo("############### FOTA Acknowledgement False ###########\n");
-    //             }
-    //         }
-    //     }
-
-    //     // free_json_parser(&parser);
-    // }else{
-    //     nwy_test_cli_echo("\r\nUnknown Topic Name: %s\n", topic_name);
-    // }
-
+        JsonParser parser = parse_json(echo_buff);
+
+        if (parser.json) {
+            int mid_idx = find_token_index(&parser, "mid", 0);
+            int mnt_idx = find_token_index(&parser, "mnt", 0);
+
+            if (mid_idx != -1) {
+                int len = parser.tokens[mid_idx].end - parser.tokens[mid_idx].start;
+                strncpy(MAC_ID, parser.json + parser.tokens[mid_idx].start, len);
+                MAC_ID[len] = '\0';
+            }
+            
+            if (mnt_idx != -1) {
+                int len = parser.tokens[mnt_idx].end - parser.tokens[mnt_idx].start;
+                strncpy(MERCHANT_ID, parser.json + parser.tokens[mnt_idx].start, len);
+                MERCHANT_ID[len] = '\0';
+            }
+            
+            char config_json[128];
+            snprintf(config_json, sizeof(config_json),
+                     "{\"mid\":\"%s\",\"mnt\":\"%s\"}", MAC_ID, MERCHANT_ID);            
+
+            int fd = nwy_file_open("machineconfig", NWY_AB_MODE);
+            if (fd >= 0) {
+                nwy_file_write(fd, config_json, strlen(config_json));
+                nwy_file_close(fd);
+                nwy_test_cli_echo("MachineConfig saved: %s\n", config_json);
+
+                // send_config_ack(5,2);
+                PublishCode = 1;
+                PublishCodeA = 5;
+                PublishCodeB = 2;
+                PublishTrigger = true;
+
+                char machineIDDisplay[22];
+                lcd_clear();
+                sprintf(machineIDDisplay, " Machine ID : %s", MAC_ID);
+                char VersionIDDisplay[22];
+                sprintf(VersionIDDisplay, " SW Version : %s", VersionNumber);
+                Display(0, PAGE2, 0, VersionIDDisplay);
+                Display(0, PAGE3, 0, machineIDDisplay);
+                delete_file_by_name("incinConfig");
+                delete_file_by_name("businessconfig");
+                delete_file_by_name("techconfig");
+                nwy_thread_sleep(1000);
+                Display(0, PAGE5, 0, "   Please  Restart  ");
+                Display(0, PAGE7, 0, "     The Machine    ");
+                nwy_thread_sleep(5000);
+                nwy_test_cli_echo("Restart the Module\n");
+            } else {
+                nwy_test_cli_echo("Failed to open machineconfig for writing.\n");
+                // send_config_ack(5,3);
+                PublishCode = 1;
+                PublishCodeA = 5;
+                PublishCodeB = 3;
+                PublishTrigger = true;
+
+                lcd_clear();
+                Display(0, PAGE2, 0, "     Init  Config   ");
+                Display(0, PAGE4, 0, "       Update      ");
+                Display(0, PAGE6, 0, "       Failed       ");
+                
+                if(IsInstulationOperation){
+                    lcd_insun_last_display_time = nwy_uptime_get() - 5000;
+                    nwy_test_cli_echo("**************** Insuin Screen State True *******************");
+                    NeedToCheckInsunTime = true;
+                    NeededInsuinScreen = true;
+                    InterruptForDispense = true;
+                }else{
+                    lcd_last_display_time = nwy_uptime_get() - 5000;
+                    NeededDefaultScreen = true; 
+                    InterruptForDispense = false;
+                    NeededInsuinScreen = false;
+                }
+            }
+        } else {
+            nwy_test_cli_echo("JSON parsing failed for Machine Config Message!\n");
+        }
+
+    }
 
 }
 extern bool NetworkDisconnectStatus;
@@ -1852,34 +1373,34 @@ void nwy_test_cli_mqtt_connect_new()
         // nwy_thread_sleep(2000);
         // req_config(3);
 
-        // if(strcmp(MAC_ID, "") == 0 | strcmp(MERCH_KEY, "") == 0){
-        //     nwy_test_cli_echo("MAC ID and Merchant Key are not set. Waiting for Configuration \n");
-        //     nwy_thread_sleep(1000);
-        //     send_initial_config();
-        // }else{
-        //     if(!technicalConfigFound){
-        //         lcd_last_display_time = nwy_uptime_get();
-        //         lcd_clear();
-        //         Display(0, PAGE2, 0, "     Waiting For       ");
-        //         Display(0, PAGE4, 0, "     Techinacal       ");
-        //         Display(0, PAGE6, 0, "    Configuration      ");
-        //         nwy_thread_sleep(2000);
-        //         req_config(1);
-        //         nwy_thread_sleep(5000);
-        //     }
-        //     if(!businessConfigFound){
-        //         lcd_last_display_time = nwy_uptime_get();
-        //         lcd_clear();
-        //         Display(0, PAGE2, 0, "     Waiting For       ");
-        //         Display(0, PAGE4, 0, "       Business        ");
-        //         Display(0, PAGE6, 0, "    Configuration      ");
-        //         nwy_thread_sleep(2000);
-        //         req_config(3);
-        //         nwy_thread_sleep(5000);
-        //     }
-        // }
+        if(strcmp(MAC_ID, "") == 0 | strcmp(MERCH_KEY, "") == 0){
+            nwy_test_cli_echo("MAC ID and Merchant Key are not set. Waiting for Configuration \n");
+            nwy_thread_sleep(1000);
+            send_initial_config();
+        }else{
+            if(!technicalConfigFound){
+                lcd_last_display_time = nwy_uptime_get();
+                lcd_clear();
+                Display(0, PAGE2, 0, "     Waiting For       ");
+                Display(0, PAGE4, 0, "     Techinacal       ");
+                Display(0, PAGE6, 0, "    Configuration      ");
+                nwy_thread_sleep(2000);
+                req_config(1);
+                nwy_thread_sleep(5000);
+            }
+            if(!businessConfigFound){
+                lcd_last_display_time = nwy_uptime_get();
+                lcd_clear();
+                Display(0, PAGE2, 0, "     Waiting For       ");
+                Display(0, PAGE4, 0, "       Business        ");
+                Display(0, PAGE6, 0, "    Configuration      ");
+                nwy_thread_sleep(2000);
+                req_config(3);
+                nwy_thread_sleep(5000);
+            }
+        }
 
-        load_business_config_values_temp();
+        // load_business_config_values_temp();
     }
 }
 
@@ -1906,7 +1427,13 @@ void send_initial_config()
 
 void req_config(int ctr)
 {
-    char json_payload[512]; // Buffer to store JSON data
+    if (!MQTTIsConnected(&paho_mqtt_client))
+    {
+        nwy_test_cli_echo("\nERROR: MQTT not connected! Check connection.\n");
+        return;
+    }
+
+    char json_payload[256] = {0}; // Buffer to store JSON data
 
     // Create JSON payload
     snprintf(json_payload, sizeof(json_payload),
@@ -1924,8 +1451,13 @@ void req_config(int ctr)
 
 void send_config_ack(int ctr, int sta)
 {
+    if (!MQTTIsConnected(&paho_mqtt_client))
+    {
+        nwy_test_cli_echo("\nERROR: MQTT not connected! Check connection.\n");
+        return;
+    }
 
-    char json_payload[512]; // Buffer to store JSON data
+    char json_payload[256] = {0}; // Buffer to store JSON data
 
     // Create JSON payload
     snprintf(json_payload, sizeof(json_payload),
@@ -1939,6 +1471,8 @@ void send_config_ack(int ctr, int sta)
         "\"sta\":%d"
         "}", VersionNumber, MERCHANT_ID, MAC_ID, ctr, sta);
 
+    // nwy_test_cli_echo(json_payload);
+    // nwy_test_cli_echo("/n");
     // Publish using helper
     nwy_mqtt_publish_data(PTConfigAck, json_payload);
 }

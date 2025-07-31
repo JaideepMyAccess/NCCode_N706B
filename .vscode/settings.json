@@ -93,6 +93,7 @@
     "typeindex": "cpp",
     "typeinfo": "cpp",
     "_types.h": "c",
-    "nwy_sim_api.h": "c"
+    "nwy_sim_api.h": "c",
+    "mqttpacket.h": "c"
   }
 }

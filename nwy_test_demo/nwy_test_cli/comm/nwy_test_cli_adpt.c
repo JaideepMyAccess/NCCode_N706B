@@ -270,12 +270,12 @@ int chamberB_disp = 0;
 // ==============================
 // 🧾 12. Identity and Metadata
 // ==============================
-char MAC_ID[10] = "RZ1954";
-char MERCHANT_ID[15] = "ZEST250507";
-// char MAC_ID[10] = "";
-// char MERCHANT_ID[15] = "";
+// char MAC_ID[10] = "RZ1954";
+// char MERCHANT_ID[15] = "ZEST250507";
+char MAC_ID[10] = "";
+char MERCHANT_ID[15] = "";
 char MERCH_KEY[5] = "INTG";
-char VersionNumber[6] = "2.0";
+char VersionNumber[6] = "3.0";
 char ImeiNumber[20]= {0};
 
 // ==============================
@@ -309,8 +309,12 @@ char CurrentTimeString[22];
 char IncinBatchID[50];
 
 // Custom Code Trigger
-bool CustomCode = true;
+bool CustomCode = false;
 extern unsigned char cmd_flag[8];
+bool PublishTrigger = false;
+int PublishCode = 0;
+int PublishCodeA = 0;
+int PublishCodeB = 0;
 
 static void customGpio(int param)
 {
@@ -486,6 +490,23 @@ void check_and_run_scheduled_task() {
     }
 }
 
+void nwy_send_acknowledgement(){
+    if(PublishTrigger){
+        nwy_test_cli_echo("Publish Triggered, Publish Code: %d\n", PublishCode);
+        PublishTrigger = false;
+        switch (PublishCode)
+        {
+        case 1:
+            nwy_test_cli_echo("Publish Acknowledgement Message to AWS of Case 1 \n");
+            send_config_ack(5,2);
+            break;
+        
+        default:
+            break;
+        }
+    }
+}
+
 static void nwy_test_cli_main_func(void *param)
 {
     char *sptr = "";
@@ -513,6 +534,11 @@ static void nwy_test_cli_main_func(void *param)
     // Custom Code 2 Execution
     nwy_test_cli_get_heap_info();
 
+    // delete_file_by_name("machineconfig");
+    // delete_file_by_name("incinConfig");
+    // delete_file_by_name("businessconfig");
+    // delete_file_by_name("techconfig");
+
 
     if(CustomCode){
         // Starts From Here
@@ -522,282 +548,324 @@ static void nwy_test_cli_main_func(void *param)
         // int64_t now_us = nwy_uptime_get();
         // nwy_test_cli_echo("Current uptime: %lld us\n", now_us);
 
-        // if (load_machine_config_values()) {
+        if (load_machine_config_values()) {
             // Use the values...
             nwy_test_cli_echo("\r\nMachineConfig Load Success!\r\n");
             nwy_test_cli_echo("\r\nMAC ID: %s\r\n", MAC_ID);
             nwy_test_cli_echo("\r\nMERCHANT ID: %s\r\n", MERCHANT_ID);
             isMachineConfigFound = true;
-            
-        // }else{
-        //     nwy_test_cli_echo("\r\nMachineConfig Load Failed!");
-        //     // 2nd Time
-        //     if (load_machine_config_values()) {
-        //         // Use the values...
-        //         nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Success!\r\n");
-        //         nwy_test_cli_echo("\r\nMAC ID: %s\r\n", MAC_ID);
-        //         nwy_test_cli_echo("\r\nMERCHANT ID: %s\r\n", MERCHANT_ID);
-        //         isMachineConfigFound = true;
-                
-        //     }else{
-        //         nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Failed!");
-        //         isMachineConfigFound = false;
-        
-        //         lcd_init();
-        //         nwy_thread_sleep(100);
-        //         lcd_clear();
-        //         nwy_thread_sleep(100);
-        //         Display(0, PAGE2, 0, " Waiting For Machine   ");
-        //         Display(0, PAGE4, 0, "    Configuration      ");
-        //     }
-        // }
 
-        nwy_thread_sleep(100);
-
-
-        nwy_test_cli_echo("\r\n ********** Initial Configuration Process Ended **********");
-
-        // GPIO Interrupt for I2C
-        int data = nwy_gpio_irq_register(I2C_IO_Pin,1,2,customGpio,NULL);
-        if (!data)
-        {
-            nwy_test_cli_echo("\r\nGpio isr register success! --- ");
-        }
-        else
-        {
-            nwy_test_cli_echo("\r\nGpio isr register failed! --- ");
-        }
-
-        int ret2 = nwy_gpio_irq_enable(I2C_IO_Pin);
-
-        if(0 == ret2)
-            nwy_test_cli_echo(" Gpio enable isr success!\r\n");
-        else
-            nwy_test_cli_echo(" Gpio enable isr fail!\r\n");
-
-        // I2C Init
-        nwy_i2c_init_process();
-
-        // Display Init
-        lcd_init();
-
-        nwy_thread_sleep(100);
-        lcd_clear();
-        nwy_thread_sleep(100);
-        Display(0, PAGE2, 0, " PF Version    : V1.0 ");
-        // Display(0, PAGE2, 0, " PF Version    : V1.0 ");
-        Display(0, PAGE3, 0, " Setup Version : V1.0 ");
-        DispNewImage2(image_data_initial_logo);
-        nwy_thread_sleep(2000);
-
-        lcd_clear();
-        nwy_thread_sleep(100);
-        char machineIDDisplay[22];
-        sprintf(machineIDDisplay, " Machine ID : %s", MAC_ID);
-        char VersionIDDisplay[22];
-        sprintf(VersionIDDisplay, " SW Version : %s", VersionNumber);
-        Display(0, PAGE2, 0, VersionIDDisplay);
-        Display(0, PAGE3, 0, machineIDDisplay);
-        DispNewImage2(image_data_initial_logo);
-        nwy_thread_sleep(2000);
-        // nwy_i2c_test_bus2();
-    
-    
-        lcd_clear();
-        DispNewImage(image_data_Image);
-        char received_amount[3];
-        sprintf(received_amount, "%-2d", Incin_cycle);
-        Display(0, PAGE8, 116, received_amount);
-        lcd_last_display_time = nwy_uptime_get();
-        
-        nwy_test_cli_get_heap_info();
-        nwy_thread_create(&nwy_test_cli_thread3, "test-cli3", NWY_OSI_PRIORITY_NORMAL, nwy_test_cli_main_func3, NULL, 16, 1024 * 32, NULL);
-        nwy_test_cli_get_heap_info();
-
-        nwy_thread_sleep(2000);
-
-        uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
-        nwy_i2c_send_data();
-        nwy_thread_sleep(100);
-
-        // nwy_test_i2c();
-        // nwy_test_lcd();
-
-       
-
-            if(isMachineConfigFound){
-        nwy_test_cli_echo("\r\n ********** MAIN Loop Process Started **********");
-        
-        if(isIncinerationPaused){
-            nwy_test_cli_echo("\n Incinerator Process Resuming Needed \n");
-            // nwy_test_cli_echo("Incin Start Time String: %s, Incin Start Time Integer: %d",IncinStartTime,atoi(IncinStartTime));
-            int epoch = atoi(IncinStartTime);
-            current_epoch = get_epoch_from_nwy_time();
-            nwy_test_cli_echo("Incin Epoch Time: %d, Current Epoch Time: %d", epoch, current_epoch);
-            if((epoch + (bct * 60)) >= current_epoch){
-                nwy_test_cli_echo("\n Incinerator Process Resuming \n");
-                lcd_clear();
-                Display(0, PAGE2, 0, "     INCINERATOR    ");
-                Display(0, PAGE4, 0, "       PROCESS      ");
-                Display(0, PAGE6, 0, "      RESUMING      ");
-
-                nwy_thread_sleep(2000);
-                IncinTriggerByResume = true;
+        }else{
+            nwy_test_cli_echo("\r\nMachineConfig Load Failed!");
+            // 2nd Time
+            if (load_machine_config_values()) {
+                // Use the values...
+                nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Success!\r\n");
+                nwy_test_cli_echo("\r\nMAC ID: %s\r\n", MAC_ID);
+                nwy_test_cli_echo("\r\nMERCHANT ID: %s\r\n", MERCHANT_ID);
+                isMachineConfigFound = true;
                 
             }else{
-                nwy_test_cli_echo("\n Incinerator Process Resume Not Needed \n");
+                nwy_test_cli_echo("\r\nMachineConfig Load 2nd time Failed!");
+                isMachineConfigFound = false;
+        
+                lcd_init();
+                nwy_thread_sleep(100);
+                lcd_clear();
+                nwy_thread_sleep(100);
+                Display(0, PAGE2, 0, " Waiting For Machine   ");
+                Display(0, PAGE4, 0, "    Configuration      ");
+            }
+        }
 
+        nwy_thread_sleep(100);
 
-                FetchCurrentTimeF1();
-                sprintf(IncinEndTime, "%s", CurrentTimeString);
+        if(isMachineConfigFound){
 
-                update_temperature();
-                update_temperature();
-                // send_incinerator_cycle_message(
-                // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+            if (load_techconfig_values()) {
+                // Use the values...
+                nwy_test_cli_echo("\r\nTechConfig Load Success!\r\n");
+                technicalConfigFound = true;
+            }else{
+                nwy_test_cli_echo("\r\nTechConfig Load Failed!\r\n");
+                // For 2nd Time
+                if (load_techconfig_values()) {
+                    // Use the values...
+                    nwy_test_cli_echo("\r\nTechConfig Load 2nd time Success!\r\n");
+                    technicalConfigFound = true;
+                }else{
+                    nwy_test_cli_echo("\r\nTechConfig Load 2nd time Failed!\r\n");
+                    technicalConfigFound = false;
+                }
+            }
+            nwy_thread_sleep(100);
 
-                // Incin Batch ID
-                FetchCurrentTimeF2();
-                snprintf(IncinBatchID, sizeof(IncinBatchID), "CM%sIN%s", MAC_ID, CurrentTimeString);
+            if (load_business_config_values()) {
+                // use iid, itp, qrb_array[]
+                nwy_test_cli_echo("\r\nBusiness Config Load Success!\r\n");
+                businessConfigFound = true;
+            }else{
+                nwy_test_cli_echo("\r\nBusiness Config Load Failed!\r\n");
+                // For 2nd Time
+                if (load_business_config_values()) {
+                    // use iid, itp, qrb_array[]
+                    nwy_test_cli_echo("\r\nBusiness Config Load Success!\r\n");
+                    businessConfigFound = true;
+                }else{
+                    nwy_test_cli_echo("\r\nBusiness Config Load Failed!\r\n");
+                    businessConfigFound = false;
+                }
+            }
 
-                // send_incinerator_cycle_message(
-                // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+            nwy_test_cli_echo("\r\n ********** Initial Configuration Process Ended **********");
 
-                // To Update in FLASH Memory
-                Incin_cycle = 0;
-                isIncinerationPaused = 0;
+            // GPIO Interrupt for I2C
+            int data = nwy_gpio_irq_register(I2C_IO_Pin,1,2,customGpio,NULL);
+            if (!data)
+            {
+                nwy_test_cli_echo("\r\nGpio isr register success! --- ");
+            }
+            else
+            {
+                nwy_test_cli_echo("\r\nGpio isr register failed! --- ");
+            }
+
+            int ret2 = nwy_gpio_irq_enable(I2C_IO_Pin);
+
+            if(0 == ret2)
+                nwy_test_cli_echo(" Gpio enable isr success!\r\n");
+            else
+                nwy_test_cli_echo(" Gpio enable isr fail!\r\n");
+
+            // I2C Init
+            nwy_i2c_init_process();
+
+            // Display Init
+            lcd_init();
+
+            nwy_thread_sleep(100);
+            lcd_clear();
+            nwy_thread_sleep(100);
+            Display(0, PAGE2, 0, " PF Version    : V1.0 ");
+            // Display(0, PAGE2, 0, " PF Version    : V1.0 ");
+            Display(0, PAGE3, 0, " Setup Version : V1.0 ");
+            DispNewImage2(image_data_initial_logo);
+            nwy_thread_sleep(2000);
+
+            lcd_clear();
+            nwy_thread_sleep(100);
+            char machineIDDisplay[22];
+            sprintf(machineIDDisplay, " Machine ID : %s", MAC_ID);
+            char VersionIDDisplay[22];
+            sprintf(VersionIDDisplay, " SW Version : %s", VersionNumber);
+            Display(0, PAGE2, 0, VersionIDDisplay);
+            Display(0, PAGE3, 0, machineIDDisplay);
+            DispNewImage2(image_data_initial_logo);
+            nwy_thread_sleep(2000);
+            // nwy_i2c_test_bus2();
+        
+            lcd_clear();
+            DispNewImage(image_data_Image);
+            char received_amount[3];
+            sprintf(received_amount, "%-2d", Incin_cycle);
+            Display(0, PAGE8, 116, received_amount);
+            lcd_last_display_time = nwy_uptime_get();
+            
+            nwy_test_cli_get_heap_info();
+            nwy_thread_create(&nwy_test_cli_thread3, "test-cli3", NWY_OSI_PRIORITY_NORMAL, nwy_test_cli_main_func3, NULL, 16, 1024 * 32, NULL);
+            nwy_test_cli_get_heap_info();
+
+            nwy_thread_sleep(2000);
+
+            uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
+            nwy_i2c_send_data();
+            nwy_thread_sleep(100);
+
+            // nwy_test_i2c();
+            // nwy_test_lcd();
+
+            nwy_test_cli_echo("\r\n ********** MAIN Loop Process Started **********");
+            
+            if(isIncinerationPaused){
+                nwy_test_cli_echo("\n Incinerator Process Resuming Needed \n");
+                // nwy_test_cli_echo("Incin Start Time String: %s, Incin Start Time Integer: %d",IncinStartTime,atoi(IncinStartTime));
+                int epoch = atoi(IncinStartTime);
                 current_epoch = get_epoch_from_nwy_time();
-                sprintf(IncinStartTime, "%d", current_epoch);
-                save_incin_config_values();
-            }
+                nwy_test_cli_echo("Incin Epoch Time: %d, Current Epoch Time: %d", epoch, current_epoch);
+                if((epoch + (bct * 60)) >= current_epoch){
+                    nwy_test_cli_echo("\n Incinerator Process Resuming \n");
+                    lcd_clear();
+                    Display(0, PAGE2, 0, "     INCINERATOR    ");
+                    Display(0, PAGE4, 0, "       PROCESS      ");
+                    Display(0, PAGE6, 0, "      RESUMING      ");
 
-        }
-
-        if((Incin_cycle >= bcc) && (bcc != 0)){
-            IncinTriggerByInitial = true;
-        }
-
-        while(1){
-            if(coin_pulse != 0 && coin_pulse <= itp && CoinStateChanged){
-                CoinStateChanged = false;
-                char received_amount[22];
-                char total_amount[22];
-                sprintf(total_amount, "        Rs. %-3d       ", itp);
-                sprintf(received_amount, "        Rs. %-3d       ", coin_pulse);
-                lcd_clear();
-                Display(0, PAGE1, 0, "     Napkin Amount    ");
-                Display(0, PAGE3, 0, total_amount);
-                Display(0, PAGE5, 0, "    Received Amount   ");
-                Display(0, PAGE7, 0, received_amount);
-    
-                // Screen Update
-                lcd_last_display_time = nwy_uptime_get()  + 10000;
-                lcd_insun_last_display_time = nwy_uptime_get()  + 10000;
-                
-                NeededDefaultScreen = true;
-                NeedToCheckInsunTime = true;
-                if(IsInstulationOperation){
-                    InterruptForDispense = true;
-                }else{
-                    InterruptForDispense = false;
-                }
-    
-                if(coin_pulse >= itp){
-                    nwy_thread_sleep(1000);
-                    CoinStateChanged = true;
-                }
-            }
-            if(coin_pulse >= itp && CoinStateChanged){
-                lcd_last_display_time = nwy_uptime_get();
-                lcd_insun_last_display_time = nwy_uptime_get();
-                coin_pulse = 0;
-                CoinStateChanged = false;
-                nwy_thread_sleep(500);
-                nwy_test_cli_echo("*********************** Motor Turned ON ************************");
-    
-                uint8_t new_cmd_flag[8] = { 0x0f, 0x01, 0x10, 0xbb, 0x00, 0x00, 0x00, 0x00};
-                memcpy(cmd_flag, new_cmd_flag, sizeof(cmd_flag));
-                nwy_i2c_send_data();
-                nwy_thread_sleep(100);
-
-                PaymentScreenActive = false;
-                uint8_t new_cmd_flag3[8] = { 0x04, 0x00, 0x04, 0xBB, 0x00, 0x00, 0x00, 0x00 };
-                memcpy(cmd_flag, new_cmd_flag3, sizeof(cmd_flag));
-                nwy_i2c_send_data();
-                nwy_thread_sleep(100);
-
-                lcd_clear();
-                Display(0, PAGE3, 0, " !!   DISPENSING   !!");
-                Display(0, PAGE6, 0, "        NAPKIN       ");
-        
-                nwy_thread_sleep(1000);
-                nwy_test_cli_echo("*********************** Motor Turned OFF ************************");
-        
-                // uint8_t new_cmd_flag2[8] = { 0x0f, 0x00, 0x0f, 0xbb, 0x00, 0x00, 0x00, 0x00};
-                // memcpy(cmd_flag, new_cmd_flag2, sizeof(cmd_flag));
-                // nwy_i2c_send_data();
-                
-                nwy_thread_sleep(2000);
-                
-                lcd_clear();
-                Display(0, PAGE3, 0, "     COLLECT YOUR     ");
-                Display(0, PAGE6, 0, "        NAPKIN       ");
-    
-                char oid_value[50];
-                FetchCurrentTimeF1();
-                snprintf(oid_value, sizeof(oid_value), "CM%sCO%s", MAC_ID, CurrentTimeString);
-                nwy_test_cli_echo("\nGenerated OID: %s\n", oid_value);
-
-
-                uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
-                memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
-                nwy_i2c_send_data();
-                nwy_thread_sleep(100);
+                    nwy_thread_sleep(2000);
+                    IncinTriggerByResume = true;
                     
-                // send_dispense_order_message(oid_value, 2, itp, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
-    
-                nwy_thread_sleep(2000);
-                
-                lcd_clear();
-                Display(0, PAGE2, 0, "   THANKS FOR USING  ");
-                Display(0, PAGE4, 0, "      BMC HYGIENE    ");
-                // Display(0, PAGE4, 0, "    PUREFEM HYGIENE  ");
-                Display(0, PAGE6, 0, "       FACILITY      ");
-                lcd_last_display_time = nwy_uptime_get()  - 5000;
-                lcd_insun_last_display_time = nwy_uptime_get() - 5000;
-
-                NeededDefaultScreen = true;
-                NeedToCheckInsunTime = true;
-                if(IsInstulationOperation){
-                    InterruptForDispense = true;
                 }else{
-                    InterruptForDispense = false;
+                    nwy_test_cli_echo("\n Incinerator Process Resume Not Needed \n");
+
+
+                    FetchCurrentTimeF1();
+                    sprintf(IncinEndTime, "%s", CurrentTimeString);
+
+                    update_temperature();
+                    update_temperature();
+                    // send_incinerator_cycle_message(
+                    // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                    // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+
+                    // Incin Batch ID
+                    FetchCurrentTimeF2();
+                    snprintf(IncinBatchID, sizeof(IncinBatchID), "CM%sIN%s", MAC_ID, CurrentTimeString);
+
+                    // send_incinerator_cycle_message(
+                    // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                    // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+
+                    // To Update in FLASH Memory
+                    Incin_cycle = 0;
+                    isIncinerationPaused = 0;
+                    current_epoch = get_epoch_from_nwy_time();
+                    sprintf(IncinStartTime, "%d", current_epoch);
+                    save_incin_config_values();
                 }
-                coin_pulse = 0;
+
             }
-            if(UpdateStockToServer){
-                UpdateStockToServer = false;
-                // send_inventory_update_message(1,machineReadings.StockStatus);
+
+            if((Incin_cycle >= bcc) && (bcc != 0)){
+                IncinTriggerByInitial = true;
             }
-            if(ValueChanged){
-                ValueChanged = false;
-                load_business_config_values();
+
+            while(1){
+                if(coin_pulse != 0 && coin_pulse <= itp && CoinStateChanged){
+                    CoinStateChanged = false;
+                    char received_amount[22];
+                    char total_amount[22];
+                    sprintf(total_amount, "        Rs. %-3d       ", itp);
+                    sprintf(received_amount, "        Rs. %-3d       ", coin_pulse);
+                    lcd_clear();
+                    Display(0, PAGE1, 0, "     Napkin Amount    ");
+                    Display(0, PAGE3, 0, total_amount);
+                    Display(0, PAGE5, 0, "    Received Amount   ");
+                    Display(0, PAGE7, 0, received_amount);
+        
+                    // Screen Update
+                    lcd_last_display_time = nwy_uptime_get()  + 10000;
+                    lcd_insun_last_display_time = nwy_uptime_get()  + 10000;
+                    
+                    NeededDefaultScreen = true;
+                    NeedToCheckInsunTime = true;
+                    if(IsInstulationOperation){
+                        InterruptForDispense = true;
+                    }else{
+                        InterruptForDispense = false;
+                    }
+        
+                    if(coin_pulse >= itp){
+                        nwy_thread_sleep(1000);
+                        CoinStateChanged = true;
+                    }
+                }
+                if(coin_pulse >= itp && CoinStateChanged){
+                    lcd_last_display_time = nwy_uptime_get();
+                    lcd_insun_last_display_time = nwy_uptime_get();
+                    coin_pulse = 0;
+                    CoinStateChanged = false;
+                    nwy_thread_sleep(500);
+                    nwy_test_cli_echo("*********************** Motor Turned ON ************************");
+        
+                    uint8_t new_cmd_flag[8] = { 0x0f, 0x01, 0x10, 0xbb, 0x00, 0x00, 0x00, 0x00};
+                    memcpy(cmd_flag, new_cmd_flag, sizeof(cmd_flag));
+                    nwy_i2c_send_data();
+                    nwy_thread_sleep(100);
+
+                    PaymentScreenActive = false;
+                    uint8_t new_cmd_flag3[8] = { 0x04, 0x00, 0x04, 0xBB, 0x00, 0x00, 0x00, 0x00 };
+                    memcpy(cmd_flag, new_cmd_flag3, sizeof(cmd_flag));
+                    nwy_i2c_send_data();
+                    nwy_thread_sleep(100);
+
+                    lcd_clear();
+                    Display(0, PAGE3, 0, " !!   DISPENSING   !!");
+                    Display(0, PAGE6, 0, "        NAPKIN       ");
+            
+                    nwy_thread_sleep(1000);
+                    nwy_test_cli_echo("*********************** Motor Turned OFF ************************");
+            
+                    // uint8_t new_cmd_flag2[8] = { 0x0f, 0x00, 0x0f, 0xbb, 0x00, 0x00, 0x00, 0x00};
+                    // memcpy(cmd_flag, new_cmd_flag2, sizeof(cmd_flag));
+                    // nwy_i2c_send_data();
+                    
+                    nwy_thread_sleep(2000);
+                    
+                    lcd_clear();
+                    Display(0, PAGE3, 0, "     COLLECT YOUR     ");
+                    Display(0, PAGE6, 0, "        NAPKIN       ");
+        
+                    char oid_value[50];
+                    FetchCurrentTimeF1();
+                    snprintf(oid_value, sizeof(oid_value), "CM%sCO%s", MAC_ID, CurrentTimeString);
+                    nwy_test_cli_echo("\nGenerated OID: %s\n", oid_value);
+
+
+                    uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
+                    memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
+                    nwy_i2c_send_data();
+                    nwy_thread_sleep(100);
+                        
+                    // send_dispense_order_message(oid_value, 2, itp, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
+        
+                    nwy_thread_sleep(2000);
+                    
+                    lcd_clear();
+                    Display(0, PAGE2, 0, "   THANKS FOR USING  ");
+                    // Display(0, PAGE4, 0, "      BMC HYGIENE    ");
+                    Display(0, PAGE4, 0, "    PUREFEM HYGIENE  ");
+                    Display(0, PAGE6, 0, "       FACILITY      ");
+                    lcd_last_display_time = nwy_uptime_get()  - 5000;
+                    lcd_insun_last_display_time = nwy_uptime_get() - 5000;
+
+                    NeededDefaultScreen = true;
+                    NeedToCheckInsunTime = true;
+                    if(IsInstulationOperation){
+                        InterruptForDispense = true;
+                    }else{
+                        InterruptForDispense = false;
+                    }
+                    coin_pulse = 0;
+                }
+                if(UpdateStockToServer){
+                    UpdateStockToServer = false;
+                    // send_inventory_update_message(1,machineReadings.StockStatus);
+                }
+                if(ValueChanged){
+                    ValueChanged = false;
+                    load_business_config_values();
+                }
+                if(!I2C_Connected){
+                    nwy_test_cli_echo("***************I2C Bus is not connected, Running In Main Loop******************\n");
+                    nwy_i2c_init_process();
+                    // return;
+                }
+                check_and_run_scheduled_task();
+                if(FotaUpdate){
+                    nwy_test_cli_echo("FOTA Process started \n");
+                }
+
+                // Send Acknowledgement Message to AWS
+                nwy_send_acknowledgement();
+                nwy_thread_sleep(300);
+            }  
+            
+        }else{
+            while(1){
+                // Send Acknowledgement Message to AWS
+                nwy_send_acknowledgement();
+                nwy_thread_sleep(300);
             }
-            if(!I2C_Connected){
-                nwy_test_cli_echo("***************I2C Bus is not connected, Running In Main Loop******************\n");
-                nwy_i2c_init_process();
-                // return;
-            }
-            check_and_run_scheduled_task();
-            if(FotaUpdate){
-                nwy_test_cli_echo("FOTA Process started \n");
-            }
-            nwy_thread_sleep(300);
-        }  
-    }
+        }
 
     }else{
         // -------------- Default Code ---------------
@@ -816,8 +884,6 @@ static void nwy_test_cli_main_func(void *param)
 
         }
     }
-    
-   
 }
 bool compare_version_prefix(const char *ver1, const char *ver2)//check string before last '-'
 {

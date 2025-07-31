@@ -159,6 +159,11 @@ extern bool InterruptForDispense;
 extern bool FotaUpdate;
 extern bool IsInstulationOperation;
 
+extern bool PublishTrigger;
+extern int PublishCode;
+extern int PublishCodeA;
+extern int PublishCodeB;
+
 extern int64_t lcd_last_display_time;
 extern int64_t lcd_insun_last_display_time;
 
