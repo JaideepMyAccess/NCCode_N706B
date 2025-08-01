@@ -73,6 +73,47 @@ static jsmntok_t *jsmn_alloc_token(jsmn_parser *parser, jsmntok_t *tokens,
   return tok;
 }
 
+
+// New
+typedef struct {
+    jsmntok_t *tokens;
+    char *json;
+    int token_count;
+    int token_capacity;
+} DynamicJsonParser;
+
+
+DynamicJsonParser parse_json_dynamic(const char *json_string) {
+    DynamicJsonParser parser;
+    jsmn_parser jsmn;
+    jsmn_init(&jsmn);
+
+    parser.token_capacity = 128; // You can safely increase this
+    parser.tokens = malloc(sizeof(jsmntok_t) * parser.token_capacity);
+    parser.json = strdup(json_string);
+
+    if (!parser.tokens || !parser.json) {
+        nwy_test_cli_echo("Memory allocation failed!\n");
+        if (parser.tokens) free(parser.tokens);
+        if (parser.json) free(parser.json);
+        parser.tokens = NULL;
+        parser.json = NULL;
+        parser.token_count = -1;
+        return parser;
+    }
+
+    parser.token_count = jsmn_parse(&jsmn, parser.json, strlen(parser.json), parser.tokens, parser.token_capacity);
+    if (parser.token_count < 0) {
+        nwy_test_cli_echo("JSON parsing Fail! Code: %d\n", parser.token_count);
+        free(parser.tokens);
+        free(parser.json);
+        parser.tokens = NULL;
+        parser.json = NULL;
+    }
+
+    return parser;
+}
+
 // Function to parse JSON
 JsonParser parse_json(const char *json_string) {
     JsonParser parser;
@@ -83,8 +124,10 @@ JsonParser parse_json(const char *json_string) {
     parser.json = strdup(json_string);
     parser.token_count = jsmn_parse(&jsmn, parser.json, strlen(parser.json), parser.tokens, MAX_TOKENS);
 
+    // nwy_test_cli_echo("Data, JSON: %s, Tokens: %d\n", parser.json, parser.tokens);
+
     if (parser.token_count < 0) {
-        nwy_test_cli_echo("JSON parsing Fail!\n");
+        nwy_test_cli_echo("JSON parsing Fail! %d\n",parser.token_count);
         // free(parser.json);
         parser.json = NULL;
     }
@@ -120,6 +163,17 @@ int find_token_index(JsonParser *parser, const char *key, int start_index) {
     return -1; // Not found
 }
 
+int find_token_index_recursive(DynamicJsonParser *parser, const char *key) {
+    for (int i = 0; i < parser->token_count; ++i) {
+        if (parser->tokens[i].type == JSMN_STRING) {
+            int length = parser->tokens[i].end - parser->tokens[i].start;
+            if (strncmp(parser->json + parser->tokens[i].start, key, length) == 0 && strlen(key) == length) {
+                return i + 1;  // return index of the corresponding value
+            }
+        }
+    }
+    return -1;
+}
 
 // Function to free allocated memory
 void free_json_parser(JsonParser *parser) {
@@ -239,7 +293,7 @@ strncpy(qrb_data, "//D39PT09/D//PL48/T5+/b2+PXx/fT/9fH++fL9+vT3/f76+fr6+//79/X19
     }
 
 }
-void load_business_config_values() {
+bool load_business_config_values() {
     char buffer[2048] = {0};  // Large buffer for QRB base64
     int fd = -1, len = 0;
 

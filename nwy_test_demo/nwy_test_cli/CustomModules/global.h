@@ -65,6 +65,7 @@ extern uint8_t qrb_array[512];
 // ==============================
 // 🔥 5. Incinerator Config & Status
 // ==============================
+extern char VendingOidValue[50];
 extern char IncinBatchID[50];
 extern int Incin_cycle;
 extern int IncinTriggerState;

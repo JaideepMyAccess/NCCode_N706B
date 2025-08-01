@@ -203,6 +203,7 @@ uint8_t qrb_array[512];
 // ==============================
 // 🔥 5. Incinerator Config & Status
 // ==============================
+char VendingOidValue[50];
 char IncinBatchID[50];
 int Incin_cycle = 0;
 int IncinTriggerState = 0;
@@ -309,7 +310,7 @@ char CurrentTimeString[22];
 char IncinBatchID[50];
 
 // Custom Code Trigger
-bool CustomCode = false;
+bool CustomCode = true;
 extern unsigned char cmd_flag[8];
 bool PublishTrigger = false;
 int PublishCode = 0;
@@ -401,7 +402,7 @@ static void nwy_test_cli_main_func3(void *param)
                 nwy_i2c_send_data();
                 nwy_thread_sleep(100);
 
-                // send_inventory_update_message(1,machineReadings.StockStatus);
+                send_inventory_update_message(1,machineReadings.StockStatus);
                 UpdateStockToServer = false;
 
                 // Fota Response
@@ -498,7 +499,12 @@ void nwy_send_acknowledgement(){
         {
         case 1:
             nwy_test_cli_echo("Publish Acknowledgement Message to AWS of Case 1 \n");
-            send_config_ack(5,2);
+            send_config_ack(PublishCodeA, PublishCodeB);
+            break;
+
+        case 2:
+            nwy_test_cli_echo("Publish Acknowledgement Message to AWS of Case 2 \n");
+            send_dispense_order_message(VendingOidValue, 1, 0, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
             break;
         
         default:
@@ -815,7 +821,7 @@ static void nwy_test_cli_main_func(void *param)
                     nwy_i2c_send_data();
                     nwy_thread_sleep(100);
                         
-                    // send_dispense_order_message(oid_value, 2, itp, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
+                    send_dispense_order_message(oid_value, 2, itp, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
         
                     nwy_thread_sleep(2000);
                     
@@ -838,7 +844,7 @@ static void nwy_test_cli_main_func(void *param)
                 }
                 if(UpdateStockToServer){
                     UpdateStockToServer = false;
-                    // send_inventory_update_message(1,machineReadings.StockStatus);
+                    send_inventory_update_message(1,machineReadings.StockStatus);
                 }
                 if(ValueChanged){
                     ValueChanged = false;
@@ -849,13 +855,15 @@ static void nwy_test_cli_main_func(void *param)
                     nwy_i2c_init_process();
                     // return;
                 }
-                check_and_run_scheduled_task();
                 if(FotaUpdate){
                     nwy_test_cli_echo("FOTA Process started \n");
                 }
 
+                check_and_run_scheduled_task();
+
                 // Send Acknowledgement Message to AWS
                 nwy_send_acknowledgement();
+
                 nwy_thread_sleep(300);
             }  
             
@@ -885,6 +893,7 @@ static void nwy_test_cli_main_func(void *param)
         }
     }
 }
+
 bool compare_version_prefix(const char *ver1, const char *ver2)//check string before last '-'
 {
     const char *last_dash1 = strrchr(ver1, '-');

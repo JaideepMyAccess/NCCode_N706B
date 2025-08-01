@@ -94,6 +94,8 @@
     "typeinfo": "cpp",
     "_types.h": "c",
     "nwy_sim_api.h": "c",
-    "mqttpacket.h": "c"
+    "mqttpacket.h": "c",
+    "nwy_test_cli_utils.h": "c",
+    "rsa.h": "c"
   }
 }
