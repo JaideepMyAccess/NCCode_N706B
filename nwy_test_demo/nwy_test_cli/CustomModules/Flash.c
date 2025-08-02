@@ -415,7 +415,7 @@ void save_incin_config_values() {
              IncinStartTime,
              IncinTriggerState);
 
-    int fd = nwy_file_open("incinConfig", NWY_CREAT | NWY_RDWR | NWY_TRUNC);
+    int fd = nwy_file_open("incinConfig", NWY_WRONLY);
     if (fd >= 0) {
         int written = nwy_file_write(fd, incin_json, strlen(incin_json));
         nwy_file_close(fd);

@@ -6,7 +6,7 @@ extern CurrentTimeString[22];
 
 void FetchCurrentTimeF1(){
     nwy_time_t julian_time = {0};
-    char timezone = 0;
+    int timezone = 0;
 
     nwy_date_get(&julian_time, &timezone);
     sprintf(CurrentTimeString, "%02d%02d%02d%02d%02d%02d", 
@@ -19,21 +19,21 @@ void FetchCurrentTimeF1(){
 
 void FetchCurrentTimeF2(){
     nwy_time_t julian_time = {0};
-    char timezone = 0;
+    int timezone = 0;
 
     nwy_date_get(&julian_time, &timezone);
     sprintf(CurrentTimeString, "%02d%02d%02d%02d%02d%02d", 
-            julian_time.year, julian_time.mon, julian_time.day,
+            julian_time.year % 100, julian_time.mon, julian_time.day,
             julian_time.hour, julian_time.min, julian_time.sec);
 
-            nwy_test_cli_echo("Called FetchCurrentTimeF1() function. Time Fetched: %s\n", CurrentTimeString);
+            nwy_test_cli_echo("Called FetchCurrentTimeF2() function. Time Fetched: %s\n", CurrentTimeString);
 }
 
 time_t get_epoch_from_nwy_time(void)
 {
     nwy_time_t julian_time = {0};
     nwy_timeval_t timestamp = {0};
-    char timezone = 0;
+    int timezone = 0;
 
     // Get current date/time from system
     nwy_date_get(&julian_time, &timezone);

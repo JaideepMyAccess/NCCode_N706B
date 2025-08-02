@@ -1098,7 +1098,7 @@ void messageArrived(MessageData *md)
             snprintf(config_json, sizeof(config_json),
                      "{\"mid\":\"%s\",\"mnt\":\"%s\"}", MAC_ID, MERCHANT_ID);            
 
-            int fd = nwy_file_open("machineconfig", NWY_AB_MODE);
+            int fd = nwy_file_open("machineconfig", NWY_WRONLY);
             if (fd >= 0) {
                 nwy_file_write(fd, config_json, strlen(config_json));
                 nwy_file_close(fd);
@@ -1300,7 +1300,7 @@ void messageArrived(MessageData *md)
                             "{\"sta\":%d,\"stb\":%d,\"ham\":%d,\"hbo\":%d,\"bct\":%d,\"hur\":%d,\"min\":%d,\"bcc\":%d}",
                             sta, stb, ham, hbo, bct, hur, min, bcc);
                     
-                    int fd = nwy_file_open("techconfig", NWY_AB_MODE);
+                    int fd = nwy_file_open("techconfig", NWY_WRONLY);
                     if (fd >= 0) {
                         nwy_file_write(fd, config_json, strlen(config_json));
                         nwy_file_close(fd);
@@ -1382,7 +1382,7 @@ void messageArrived(MessageData *md)
             snprintf(config_json, sizeof(config_json),
                 "{\"iid\":%d,\"itp\":%d,\"qrb\":\"%s\"}", iid, itp, qrb_data);
 
-            int fd = nwy_file_open("businessconfig", NWY_AB_MODE);
+            int fd = nwy_file_open("businessconfig", NWY_WRONLY);
             if (fd >= 0) {
                 nwy_file_write(fd, config_json, strlen(config_json));
                 nwy_file_close(fd);
@@ -1728,6 +1728,30 @@ void send_inventory_update_message( int spn, int stl) {
         nwy_mqtt_publish_data(PTDispenseInventory, json_payload);
 }
 
+void send_incinerator_info_status( const char *bid, int bnc, int tbc) {
+
+    char json_payload[256]; // Buffer to store JSON data
+
+
+
+    // Create JSON payload
+    snprintf(json_payload, sizeof(json_payload),
+    "{"
+    "\"mid\": \"%s\","
+    "\"key\": \"ABAB\","
+    "\"crc\": 200,"
+    "\"icr\": {"
+    "   \"iis\": {"
+    "       \"bid\": \"%s\","   // Batch ID
+    "       \"bnc\": %d,"       // Total Napkin Count in that Batch
+    "       \"tbc\": %d"        // Total Burned Napkin Count
+    "   }"
+    "}"
+    "}", MAC_ID, bid, bnc, tbc);
+
+    nwy_mqtt_publish_data(PTIncinNapkinMessage, json_payload);
+}
+
 void send_dispense_order_message(char *oid, int pym, int cin, int sus, int sds, int rot, int ser, int mfb) {
 
     // JSON payload
@@ -1760,7 +1784,6 @@ void send_dispense_order_message(char *oid, int pym, int cin, int sus, int sds, 
     "}",
     MAC_ID, oid, pym, cin, iid, sus, sds, rot, ser, mfb);
 
-
     if(NetworkConnectStatus){
         int rc = nwy_mqtt_publish_data(PTDispenseStatus, json_payload);  // uses qos=0, retained=0
         if (rc == 0) {
@@ -1778,6 +1801,57 @@ void send_dispense_order_message(char *oid, int pym, int cin, int sus, int sds, 
         napkinOfflineLogDataState = true;
     }
 
+}
+
+
+void send_incinerator_cycle_message(
+    const char *bid, int bnc, int tbc, const char *bst, 
+    const char *bet, int hta, int htb, 
+    int has, int hbs, int bmd, int bts) {
+    char json_payload[500]; // Buffer to store JSON data
+
+    FetchCurrentTimeF1();
+        sprintf(CurrentTime, "%s", CurrentTimeString);
+
+    // Create JSON payload
+    snprintf(json_payload, sizeof(json_payload),
+    "{"
+    "\"mid\": \"%s\","
+    "\"hts\": \"%s\","
+    "\"key\": \"ABAB\","
+    "\"crc\": 200,"
+    "\"icr\": {"
+    "   \"ict\": {"
+    "       \"bid\": \"%s\","   // Batch ID
+    "       \"bnc\": %d,"       // Napin Count in that Batch
+    "       \"tbc\": %d,"       // Total Napin Count Burned
+    "       \"bst\": \"%s\","   // Burn Start Time
+    "       \"bet\": \"%s\","   // Burn End Time 
+    "       \"hta\": %d,"       // Heater A Temperature 
+    "       \"htb\": %d,"       // Heater B Temperature
+    "       \"has\": %d,"       // Heater A Status
+    "       \"hbs\": %d,"       // Heater B Status  
+    "       \"bmd\": %d,"       // Burn Mode bmd = 1: Manual, 2: Limit Switch, 3: Timer 
+    "       \"bts\": %d"        // Burn Status bts = 1:Burning, 2:Idle, 200:Finished, 201:Error
+    "   }"
+    "}"
+    "}",MAC_ID, CurrentTime, bid, bnc, tbc, bst, bet, hta, htb, has, hbs, bmd, bts);
+
+    if(NetworkConnectStatus){
+        int rc = nwy_mqtt_publish_data(PTIncinCycleMessage, json_payload);
+        if (rc == 0) {
+            nwy_test_cli_echo("\nMessage Published to Topic: %s\nPayload: %s\n", PTIncinCycleMessage, json_payload);
+        } else {
+            nwy_test_cli_echo("\nFailed to Publish to Topic: %s\n", PTIncinCycleMessage);
+            nwy_test_cli_echo("AWS is not connected. Added to incineratorOfflineData Log File.\n");
+            // append_incinerator_data(json_payload);
+            incineratorOfflineLogDataState = true;
+        }
+    }else{
+        nwy_test_cli_echo("Network is not connected. Added to incineratorOfflineData Log File.\n");
+        // append_incinerator_data(json_payload);
+        incineratorOfflineLogDataState = true;
+    }
 }
 
 void req_config(int ctr)

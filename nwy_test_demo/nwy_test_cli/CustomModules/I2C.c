@@ -91,7 +91,7 @@ void nwy_i2c_send_data() {
     if (ret >=0) {
         nwy_test_cli_echo("I2C Success: Bus Name:%s, Write Success \n", i2c_bus_new);
         I2C_Connected = true;
-        nwy_thread_sleep(80);
+        nwy_thread_sleep(40);
         nwy_i2c_receive_data();
         nwy_thread_sleep(100);
     }else{
@@ -163,7 +163,7 @@ void nwy_i2c_send_data() {
     nwy_test_cli_echo("Chamber A Combined (Integer) : %d , Manipulated : %d\n", chamberA_temp, chamberA_disp);
     nwy_test_cli_echo("Chamber B Combined (Integer) : %d , Manipulated : %d\n", chamberB_temp, chamberB_disp);
 }
-static void heater_process(void){
+ void heater_process(void){
     
     IsInstulationOperation = true;
 
@@ -205,9 +205,9 @@ static void heater_process(void){
 
     FetchCurrentTimeF1();
     sprintf(IncinStartTime, "%s", CurrentTimeString);
-    // send_incinerator_cycle_message(
-    //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-    //     "0", chamberA_disp, chamberB_disp, 1, 0, IncinTriggerState, 1);
+    send_incinerator_cycle_message(
+        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+        "0", chamberA_disp, chamberB_disp, 1, 0, IncinTriggerState, 1);
 
   
 
@@ -220,12 +220,17 @@ static void heater_process(void){
         if((incinTime + 1500) < nwy_uptime_get()){
             nwy_test_cli_echo("\n\n############################## Loop Running ##############################\n");
 
-            nwy_test_cli_echo("Current Time : %lld, Insun Burn Time : %lld for Timeout  \n", (nwy_uptime_get() / 1000000), (insun_burn_time + (bct * 60 )));
-            if((insun_burn_time + (bct * 60 )) < (nwy_uptime_get() / 1000)){
+            int64_t CurrentTime = nwy_uptime_get() / 1000;
+            // nwy_test_cli_echo("Current Time : %lld ", CurrentTime);
+            // nwy_test_cli_echo("Insun Burn Time : %lld ", insun_burn_time);
+            // nwy_test_cli_echo("bct value : %d Minutes \n", bct);
+            // nwy_test_cli_echo("Insun Burn Time Last: %lld ", insun_burn_time + (bct * 60 ));
+
+            nwy_test_cli_echo("Current Time : %lld, Insun Burn Time : %lld for Timeout  \n", CurrentTime, insun_burn_time + (bct * 60 ));
+            if((insun_burn_time + (bct * 60 )) < CurrentTime){
                 nwy_test_cli_echo("bct value : %d Minutes \n", bct);
                 nwy_test_cli_echo("************************** Timeout For Incinerator Process **********88\n");
                 isTimeOut = true;
-
 
                 // For Incinerator to TURN OFF
                 uint8_t new_cmd_flag2[8] = { 0x16, 0x00, 0x16, 0xBB, 0x00, 0x00, 0x00, 0x00};
@@ -315,9 +320,9 @@ static void heater_process(void){
                     lcd_init();
                     lcd_clear();
                     Update_Screen(status_buffer1, status_buffer2, status_buffer3, status_buffer4);
-                    // send_incinerator_cycle_message(
-                    //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    //     "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
+                    send_incinerator_cycle_message(
+                        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                        "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
                 }
                 
                 if(chamberA_disp > sta & heaterA_status){ // 650 //250
@@ -330,9 +335,9 @@ static void heater_process(void){
                     lcd_init();
                     lcd_clear();
                     Update_Screen(status_buffer1, status_buffer2, status_buffer3, status_buffer4);
-                    // send_incinerator_cycle_message(
-                    //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    //     "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
+                    send_incinerator_cycle_message(
+                        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                        "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
 
                 }
                 if(chamberA_disp < ham & !heaterA_status){ // 600 //240
@@ -345,9 +350,9 @@ static void heater_process(void){
                     lcd_init();
                     lcd_clear();
                     Update_Screen(status_buffer1, status_buffer2, status_buffer3, status_buffer4);
-                    // send_incinerator_cycle_message(
-                    //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    //     "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
+                    send_incinerator_cycle_message(
+                        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                        "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
                 }
                 if(chamberB_disp > stb & heaterB_status){//450 // 175
                     // nwy_thread_sleep(1000);
@@ -370,9 +375,9 @@ static void heater_process(void){
                     lcd_init();
                     lcd_clear();
                     Update_Screen(status_buffer1, status_buffer2, status_buffer3, status_buffer4);
-                    // send_incinerator_cycle_message(
-                    //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    //     "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
+                    send_incinerator_cycle_message(
+                        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                        "0", chamberA_disp, chamberB_disp, heaterA_status?1:0, heaterB_status?1:0 , IncinTriggerState, 206);
                 }
             }
             incinTime = nwy_uptime_get(); 
@@ -404,9 +409,9 @@ static void heater_process(void){
         
         FetchCurrentTimeF1();
         sprintf(IncinEndTime, "%s", CurrentTimeString);
-        // send_incinerator_cycle_message(
-        // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-        // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 201);
+        send_incinerator_cycle_message(
+        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+        IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 201);
     }else{
         nwy_test_cli_echo("****************** Incinerator Process Completed **********\n");
         lcd_init();
@@ -419,9 +424,9 @@ static void heater_process(void){
         
         FetchCurrentTimeF1();
         sprintf(IncinEndTime, "%s", CurrentTimeString);
-        // send_incinerator_cycle_message(
-        // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-        // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 200);
+        send_incinerator_cycle_message(
+        IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+        IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 200);
     }
     
 
@@ -436,7 +441,7 @@ static void heater_process(void){
     // To Update in FLASH Memory
     current_epoch = get_epoch_from_nwy_time();
     sprintf(IncinStartTime, "%d", current_epoch);
-    // save_incin_config_values();
+    save_incin_config_values();
 }
 
 
@@ -650,13 +655,13 @@ void nwy_i2c_receive_data(){
                         Display(0, PAGE8, 116, received_amount);
                     }
                     nwy_test_cli_echo("Incinerator Cycle : %d \r\n", Incin_cycle);
-                    // send_incinerator_info_status(
-                    // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn);
+                    send_incinerator_info_status(
+                    IncinBatchID, Incin_cycle, IncinTotalNapkinBurn);
                     lcd_insun_last_display_time = nwy_uptime_get();
-                    // save_incin_config_values();
+                    save_incin_config_values();
                     if((Incin_cycle >= bcc) && !IsInstulationOperation){
                         IncinTriggerState = 2;
-                        // IncinTriggeredByRestart = false;
+                        IncinTriggeredByRestart = false;
                         heater_process();
                     }
                 }
@@ -668,7 +673,7 @@ void nwy_i2c_receive_data(){
                     lcd_insun_last_display_time = nwy_uptime_get();
                     // lcd_insun_last_display_time = nwy_uptime_get();
                     IncinTriggerState = 1;
-                    // IncinTriggeredByRestart = false;
+                    IncinTriggeredByRestart = false;
                     heater_process();
                 }
             break;

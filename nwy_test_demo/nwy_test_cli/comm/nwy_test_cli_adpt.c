@@ -353,13 +353,9 @@ static void nwy_test_cli_main_func3(void *param)
         
             nwy_test_cli_echo("\r\n ********** Current Time Fetch Process Started **********");
         
-            nwy_time_t julian_time = {0};
-            char timezone =0;
-            nwy_date_get(&julian_time, &timezone);
-            nwy_test_cli_echo("\r\n%d-%d-%d %d:%d:%d", julian_time.year,julian_time.mon,julian_time.day, julian_time.hour,julian_time.min,julian_time.sec);
-        
+            nwy_test_cli_get_time();
             // // Incin Batch ID
-            // FetchCurrentTimeF2();
+            FetchCurrentTimeF2();
             // snprintf(IncinBatchID, sizeof(IncinBatchID), "CM%sIN%s", MAC_ID, CurrentTimeString);
             
         
@@ -394,8 +390,8 @@ static void nwy_test_cli_main_func3(void *param)
                 nwy_test_cli_echo("\r\n Network Connection Established!");
                 DispBarImage(image_data_bar_Image);
 
-                // send_incinerator_info_status(
-                //     IncinBatchID, Incin_cycle, IncinTotalNapkinBurn);
+                send_incinerator_info_status(
+                    IncinBatchID, Incin_cycle, IncinTotalNapkinBurn);
 
                 uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
@@ -418,6 +414,8 @@ static void nwy_test_cli_main_func3(void *param)
         }
     }
 }
+
+// extern heater_process();
 static void nwy_test_cli_main_func2(void *param)
 {
 
@@ -432,20 +430,20 @@ while(1){
         }
         if(IncinTriggerBySchedule){
             IncinTriggerState = 3;
-            // heater_process();
+            heater_process();
             already_triggered_today = true;
             IncinTriggerBySchedule = false;
         }
         if(IncinTriggerByResume){
-            // IncinTriggeredByRestart = true;
-            // heater_process();
-            // IncinTriggeredByRestart = false;
+            IncinTriggeredByRestart = true;
+            heater_process();
+            IncinTriggeredByRestart = false;
             IncinTriggerByResume = false;
         }
         if(IncinTriggerByInitial){
             IncinTriggerState = 2;
-            // IncinTriggeredByRestart = false;
-            // heater_process();
+            IncinTriggeredByRestart = false;
+            heater_process();
             IncinTriggerByInitial = false;
         }
         if((lcd_last_display_time + 10000 < nwy_uptime_get()) & NeededDefaultScreen & !InterruptForDispense ){
@@ -554,6 +552,18 @@ static void nwy_test_cli_main_func(void *param)
         // int64_t now_us = nwy_uptime_get();
         // nwy_test_cli_echo("Current uptime: %lld us\n", now_us);
 
+        // Display Init
+        lcd_init();
+
+        nwy_thread_sleep(100);
+        lcd_clear();
+        nwy_thread_sleep(100);
+        Display(0, PAGE2, 0, " PF Version    : V1.0 ");
+        // Display(0, PAGE2, 0, " PF Version    : V1.0 ");
+        Display(0, PAGE3, 0, " Setup Version : V1.0 ");
+        DispNewImage2(image_data_initial_logo);
+        nwy_thread_sleep(1000);
+
         if (load_machine_config_values()) {
             // Use the values...
             nwy_test_cli_echo("\r\nMachineConfig Load Success!\r\n");
@@ -623,6 +633,16 @@ static void nwy_test_cli_main_func(void *param)
                 }
             }
 
+            // Incinerator Time & Count
+            if(load_incin_config_values()){
+                nwy_test_cli_echo("Incinerator Previous Data Found \n");
+            }else{
+                nwy_test_cli_echo("No Incinerator Previous Data \n");
+                // Starting of Incinerator Process
+                FetchCurrentTimeF2();
+                snprintf(IncinBatchID, sizeof(IncinBatchID), "CM%sIN%s", MAC_ID, CurrentTimeString);
+            }
+
             nwy_test_cli_echo("\r\n ********** Initial Configuration Process Ended **********");
 
             // GPIO Interrupt for I2C
@@ -646,18 +666,7 @@ static void nwy_test_cli_main_func(void *param)
             // I2C Init
             nwy_i2c_init_process();
 
-            // Display Init
-            lcd_init();
-
-            nwy_thread_sleep(100);
-            lcd_clear();
-            nwy_thread_sleep(100);
-            Display(0, PAGE2, 0, " PF Version    : V1.0 ");
-            // Display(0, PAGE2, 0, " PF Version    : V1.0 ");
-            Display(0, PAGE3, 0, " Setup Version : V1.0 ");
-            DispNewImage2(image_data_initial_logo);
-            nwy_thread_sleep(2000);
-
+            // Display Part Continues
             lcd_clear();
             nwy_thread_sleep(100);
             char machineIDDisplay[22];
@@ -718,17 +727,17 @@ static void nwy_test_cli_main_func(void *param)
 
                     update_temperature();
                     update_temperature();
-                    // send_incinerator_cycle_message(
-                    // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+                    send_incinerator_cycle_message(
+                    IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                    IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
 
                     // Incin Batch ID
                     FetchCurrentTimeF2();
                     snprintf(IncinBatchID, sizeof(IncinBatchID), "CM%sIN%s", MAC_ID, CurrentTimeString);
 
-                    // send_incinerator_cycle_message(
-                    // IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
-                    // IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
+                    send_incinerator_cycle_message(
+                    IncinBatchID, Incin_cycle, IncinTotalNapkinBurn, IncinStartTime, 
+                    IncinEndTime, chamberA_disp, chamberB_disp, 0, 0, IncinTriggerState, 202);
 
                     // To Update in FLASH Memory
                     Incin_cycle = 0;
@@ -864,10 +873,18 @@ static void nwy_test_cli_main_func(void *param)
                 // Send Acknowledgement Message to AWS
                 nwy_send_acknowledgement();
 
+                // Temp
+                nwy_test_cli_get_heap_info();
+
                 nwy_thread_sleep(300);
             }  
             
         }else{
+
+            nwy_test_cli_get_heap_info();
+            nwy_thread_create(&nwy_test_cli_thread3, "test-cli3", NWY_OSI_PRIORITY_NORMAL, nwy_test_cli_main_func3, NULL, 16, 1024 * 32, NULL);
+            nwy_test_cli_get_heap_info();
+
             while(1){
                 // Send Acknowledgement Message to AWS
                 nwy_send_acknowledgement();
