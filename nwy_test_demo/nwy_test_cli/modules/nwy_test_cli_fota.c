@@ -2,6 +2,7 @@
 #include "nwy_test_cli_adpt.h"
 #include "nwy_fota_api.h"
 #include "nwy_ftp_api.h"
+#include "global.h"
 
 nwy_ota_package_t g_ota_pack = {0};
 char g_filename[256+1] = {0};
@@ -317,6 +318,58 @@ static void nwy_cli_ftp_fota_result_cb(nwy_ftp_result_t *param)
     }
     return;
 }
+
+
+void nwy_test_cli_ftp_fota_update_hardcoded()
+{
+    nwy_ftp_param_t ftp_param;
+    nwy_ftp_ssl_cfg_t sslcfg;
+    
+    memset(&sslcfg, 0x00, sizeof(sslcfg));
+    memset(&ftp_param, 0x00, sizeof(ftp_param));
+
+    if (g_ftp_fota_handl != NULL)
+    {
+        nwy_test_cli_echo("\r\n FTP client already exists.");
+        return;
+    }
+
+    ftp_param.cid = 1;  // Channel 1
+    ftp_param.host = FTP_IP;
+    ftp_param.port = 21;
+    ftp_param.mode = 0;  // Passive mode
+    ftp_param.username = FTP_USER;
+    ftp_param.password = FTP_PASS;
+    ftp_param.timeout_s = 60;
+    ftp_param.cb = nwy_cli_ftp_fota_result_cb;
+
+    // Set filename from global FTP_PATH
+    if (strlen(FTP_PATH) > 256)
+    {
+        nwy_test_cli_echo("\r\n Filename too long.");
+        return;
+    }
+
+    memset(g_filename, 0, sizeof(g_filename));
+    strcpy(g_filename, FTP_PATH);
+    memset(&g_ota_pack, 0, sizeof(g_ota_pack));
+
+    // No SSL (FTP, not FTPS)
+    g_ftp_fota_handl = nwy_ftp_login(&ftp_param, NULL);
+
+    // Setup download parameters
+    g_ftp_get_param.len = 0;
+    g_ftp_get_param.offset = 0;
+    g_ftp_get_param.remotefile = g_filename;
+    g_ftp_get_param.type = 2;
+
+    NWY_SDK_LOG_DEBUG("FTP handler: %p", g_ftp_fota_handl);
+    if (g_ftp_fota_handl == NULL)
+    {
+        nwy_test_cli_echo("\r\n FTP login failed.\r\n");
+    }
+}
+
 
 void nwy_test_cli_ftp_fota_update()
 {

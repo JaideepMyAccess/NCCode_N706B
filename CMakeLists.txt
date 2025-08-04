@@ -77,6 +77,7 @@ target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/
 target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/I2C.c)
 target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/Flash.c)
 target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/RepeatedFunctions.c)
+target_sources(${build_target} PRIVATE nwy_test_demo/nwy_test_cli/CustomModules/OfflineLog.c)
 
 # set target map file for target lin
 set(target_map_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${build_target}.map)

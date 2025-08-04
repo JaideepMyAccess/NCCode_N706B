@@ -149,7 +149,7 @@ extern char FTP_IP[64];
 // ==============================
 // 📝 14. Utilities
 // ==============================
-extern char json_line[1024];
+extern char json_line[500];
 extern bool napkinOfflineLogDataState;
 extern bool incineratorOfflineLogDataState;
 
@@ -168,4 +168,6 @@ extern int PublishCodeB;
 extern int64_t lcd_last_display_time;
 extern int64_t lcd_insun_last_display_time;
 
+extern char PTDispenseStatus[50];
+extern char PTIncinCycleMessage[50];
 #endif // GLOBALS_H

@@ -96,6 +96,8 @@
     "nwy_sim_api.h": "c",
     "mqttpacket.h": "c",
     "nwy_test_cli_utils.h": "c",
-    "rsa.h": "c"
+    "rsa.h": "c",
+    "stdbool.h": "c",
+    "mqttclient.h": "c"
   }
 }

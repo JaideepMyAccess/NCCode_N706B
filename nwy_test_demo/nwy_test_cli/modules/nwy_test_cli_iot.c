@@ -1429,6 +1429,123 @@ void messageArrived(MessageData *md)
         }
 
     }
+
+    // For FOTA Update
+    if( strcmp(topic_name, STIMEIConfigFota) == 0 ){
+        lcd_init();
+        lcd_clear();
+        Display(0, PAGE2, 0, "    FOTA REQUEST    ");
+        Display(0, PAGE4, 0, "      RECEIVED      ");
+        Display(0, PAGE6, 0, "  PROCESS STARTED   ");
+
+        JsonParser parser = parse_json(echo_buff);
+
+        if (parser.json) {
+            int ack_idx = find_token_index(&parser, "ack", 0);
+
+            if (ack_idx != -1) {
+                int len = parser.tokens[ack_idx].end - parser.tokens[ack_idx].start;
+                char ack_val[4] = {0};
+                strncpy(ack_val, parser.json + parser.tokens[ack_idx].start, len);
+                ack_val[len] = '\0';
+
+                if (strcmp(ack_val, "1") == 0) {
+                    nwy_test_cli_echo("###############FOTA Acknowledgement True \n");
+                    // Save path
+                    int pat_idx = find_token_index(&parser, "pat", 0);
+                    if (pat_idx != -1) {
+                        int len = parser.tokens[pat_idx].end - parser.tokens[pat_idx].start;
+                        strncpy(FTP_PATH, parser.json + parser.tokens[pat_idx].start, len);
+                        FTP_PATH[len] = '\0';
+                    }
+
+                    // Save FTP username
+                    int ftu_idx = find_token_index(&parser, "ftu", 0);
+                    if (ftu_idx != -1) {
+                        int len = parser.tokens[ftu_idx].end - parser.tokens[ftu_idx].start;
+                        strncpy(FTP_USER, parser.json + parser.tokens[ftu_idx].start, len);
+                        FTP_USER[len] = '\0';
+                    }
+
+                    // Save FTP password
+                    int ftp_idx = find_token_index(&parser, "ftp", 0);
+                    if (ftp_idx != -1) {
+                        int len = parser.tokens[ftp_idx].end - parser.tokens[ftp_idx].start;
+                        strncpy(FTP_PASS, parser.json + parser.tokens[ftp_idx].start, len);
+                        FTP_PASS[len] = '\0';
+                    }
+
+                    // Save File Transfer IP Address
+                    int fti_idx = find_token_index(&parser, "fti", 0);
+                    if (fti_idx != -1) {
+                        int len = parser.tokens[fti_idx].end - parser.tokens[fti_idx].start;
+                        strncpy(FTP_IP, parser.json + parser.tokens[fti_idx].start, len);
+                        FTP_IP[len] = '\0';
+                    }
+
+                    nwy_test_cli_echo("Decoded FTP Config:\r\nPath: %s\r\nUser: %s\r\nPass: %s\r\nIP: %s\r\n", 
+                        FTP_PATH, FTP_USER, FTP_PASS, FTP_IP);
+
+                    PublishCode = 1;
+                    PublishCodeA = 4;
+                    PublishCodeB = 1;
+                    PublishTrigger = true;
+                    // send_config_ack(4,1);
+                    if(IsInstulationOperation){
+                        lcd_insun_last_display_time = nwy_uptime_get() + 10000;
+                        nwy_test_cli_echo("**************** Insuin Screen State True *******************");
+                        NeedToCheckInsunTime = true;
+                        NeededInsuinScreen = true;
+                        InterruptForDispense = true;
+                    }else{
+                        lcd_last_display_time = nwy_uptime_get() + 10000;
+                        NeededDefaultScreen = true; 
+                        InterruptForDispense = false;
+                        NeededInsuinScreen = false;
+                    }
+                    nwy_thread_sleep(2000);
+                    FotaUpdate = true;
+                    nwy_test_cli_ftp_fota_update_hardcoded();
+                    // // nwy_ftp_test();
+                    // while(1){
+                    //     nwy_ext_input_gets("\r\nPlease input option: ");
+                    // }
+
+                }else{
+                    nwy_test_cli_echo("###############FOTA Acknowledgement False ########### \n");
+                }
+            }
+        }
+    }
+
+    // For Config Fetch
+    if( strcmp(topic_name, STReqConfig) == 0 ){
+
+        nwy_test_cli_echo("\nReceived Config Request \n");
+        lcd_init();
+        lcd_clear();
+        Display(0, PAGE2, 0, "   CONFIG REQUEST   ");
+        Display(0, PAGE4, 0, "      RECEIVED      ");
+        Display(0, PAGE6, 0, "   SENDING CONFIG   ");
+
+        PublishCode = 3;
+        PublishTrigger = true;
+
+
+
+        if(IsInstulationOperation){
+            lcd_insun_last_display_time = nwy_uptime_get() + 10000;
+            nwy_test_cli_echo("**************** Insuin Screen State True *******************");
+            NeedToCheckInsunTime = true;
+            NeededInsuinScreen = true;
+            InterruptForDispense = true;
+        }else{
+            lcd_last_display_time = nwy_uptime_get() + 10000;
+            NeededDefaultScreen = true; 
+            InterruptForDispense = false;
+            NeededInsuinScreen = false;
+        }
+    }
 }
 extern bool NetworkDisconnectStatus;
 extern bool NetworkConnectStatus;
@@ -1707,6 +1824,59 @@ void send_initial_config()
     nwy_mqtt_publish_data(PTInitialConfig, json_payload);  // uses qos=0, retained=0
 }
 
+// Function to publish initial configuration (for N706B)
+void send_config_request_data()
+{
+    if (!MQTTIsConnected(&paho_mqtt_client))
+    {
+        nwy_test_cli_echo("\nERROR: MQTT not connected! Check connection.\n");
+        return;
+    }
+
+    char json_payload[510];
+
+    // CurrentTime
+    FetchCurrentTimeF1();
+    sprintf(CurrentTime, "%s", CurrentTimeString);
+    snprintf(json_payload, sizeof(json_payload),
+        "{"
+        "\"mnt\": \"%s\","
+        "\"mid\": \"%s\","
+        "\"cts\": \"%s\","
+        "\"key\": \"ABAB\","
+        "\"crc\": 200,"
+        "\"icr\": {"
+        "   \"ira\": {"
+        "       \"act\": {"
+        "           \"hur\": %d,"
+        "           \"min\": %d"
+        "       },"
+        "       \"bcc\": %d,"
+        "       \"bct\": %d,"
+        "       \"cta\": 0,"
+        "       \"ctb\": 0,"
+        "       \"ham\": %d,"
+        "       \"hbo\": %d,"
+        "       \"sta\": %d,"
+        "       \"stb\": %d"
+        "   }"
+        "},"
+        "\"iid\": %d,"
+        "\"itp\": %d,"
+        "\"has\": %d,"
+        "\"hbs\": %d,"
+        "\"qid\": \"\""
+        "}",
+        MERCHANT_ID, MAC_ID,CurrentTime,  // "mnt", "mid",
+        hur, min,                  // "hur", "min"
+        bcc, bct,                  // "bcc", "bct"
+        ham, hbo, sta, stb,        // heater and sensor params
+        iid, itp,  heaterA_status?1:0,  heaterB_status?1:0                  // item ID & price
+    );
+        
+    nwy_mqtt_publish_data(PTReqConfig, json_payload);  // uses qos=0, retained=0
+}
+
 void send_inventory_update_message( int spn, int stl) {
     char json_payload[256]; // Buffer to store JSON data
 
@@ -1791,13 +1961,13 @@ void send_dispense_order_message(char *oid, int pym, int cin, int sus, int sds, 
         } else {
             nwy_test_cli_echo("\nFailed to Publish to Topic: %s\n", PTDispenseStatus);
             nwy_test_cli_echo("AWS is not connected. Added to napkinOfflineData Log File.\n");
-            // append_napkin_data(json_payload);
+            append_napkin_data(json_payload);
             napkinOfflineLogDataState = true;
         }
 
     }else{
         nwy_test_cli_echo("Network is not connected. Added to napkinOfflineData Log File.\n");
-        // append_napkin_data(json_payload);
+        append_napkin_data(json_payload);
         napkinOfflineLogDataState = true;
     }
 
@@ -1844,12 +2014,12 @@ void send_incinerator_cycle_message(
         } else {
             nwy_test_cli_echo("\nFailed to Publish to Topic: %s\n", PTIncinCycleMessage);
             nwy_test_cli_echo("AWS is not connected. Added to incineratorOfflineData Log File.\n");
-            // append_incinerator_data(json_payload);
+            append_incinerator_data(json_payload);
             incineratorOfflineLogDataState = true;
         }
     }else{
         nwy_test_cli_echo("Network is not connected. Added to incineratorOfflineData Log File.\n");
-        // append_incinerator_data(json_payload);
+        append_incinerator_data(json_payload);
         incineratorOfflineLogDataState = true;
     }
 }

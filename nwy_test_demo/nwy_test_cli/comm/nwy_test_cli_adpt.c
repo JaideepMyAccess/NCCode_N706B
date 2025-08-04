@@ -290,7 +290,7 @@ char FTP_IP[64];
 // ==============================
 // 📝 14. Utilities
 // ==============================
-char json_line[1024] = {0};
+char json_line[500] = {0};
 bool napkinOfflineLogDataState = false;
 bool incineratorOfflineLogDataState = false;
 
@@ -328,6 +328,65 @@ static void nwy_test_cli_main_func3(void *param)
     while(1){
         nwy_thread_sleep(1000);
         if(NetworkConnectStatus){
+
+            // Napkin
+            if(napkinOfflineLogDataState){
+                if (get_napkin_data(json_line, sizeof(json_line))) {
+                    nwy_test_cli_echo("Got offline JSON: %s\n", json_line);
+                
+                    // Try publishing or processing it...
+
+                    nwy_test_cli_echo("\nOffline Napkin Publishing to Topic: %s\nPayload: %s\n", PTDispenseStatus, json_line);
+                    // int rc = nwy_mqtt_pub_v2(mqtt_cli_handl, PTDispenseStatus, &pubmsg);
+                    int rc = nwy_mqtt_publish_data(PTDispenseStatus, json_line);
+                    if (rc == 0) {
+                        nwy_test_cli_echo("\n##########Offline Napkin Message to Publish to Topic: %s\n", PTDispenseStatus);
+                        // nwy_test_cli_echo("\nnOffline Message Published to Topic: %s\nPayload: %s\n", PTDispenseStatus, json_line);
+                        // If successful, delete it
+                        delete_napkin_data();
+
+                        // Napkin Offline Log
+                        if(is_napkin_data_available()){
+                            nwy_test_cli_echo("Napkin Offline Log Found \n");
+                            napkinOfflineLogDataState = true;
+                        }else{
+                            nwy_test_cli_echo("No Napkin Offline \n");
+                            napkinOfflineLogDataState = false;
+                        }
+                    } else {
+                        nwy_test_cli_echo("\nFailed to Publish to Topic: %s\n", PTDispenseStatus);
+                    }
+                }
+            }
+            // Incinerator
+            if(incineratorOfflineLogDataState){
+                if (get_incinerator_data(json_line, sizeof(json_line))) {
+                    nwy_test_cli_echo("Got Incinerator offline JSON: %s\n", json_line);
+                
+                    // Try publishing or processing it...
+           
+                    nwy_test_cli_echo("\nOffline Incinerator Publishing to Topic: %s\nPayload: %s\n", PTIncinCycleMessage, json_line);
+                    // int rc = nwy_mqtt_pub_v2(mqtt_cli_handl, PTIncinCycleMessage, &pubmsg);
+                    int rc = nwy_mqtt_publish_data(PTIncinCycleMessage, json_line);
+                    if (rc == 0) {
+                        nwy_test_cli_echo("\n********Offline Incinerator Message to Publish to Topic: %s\n", PTIncinCycleMessage);
+                        // nwy_test_cli_echo("\nnOffline Message Published to Topic: %s\nPayload: %s\n", PTDispenseStatus, json_line);
+                        // If successful, delete it
+                        delete_incinerator_data();
+                        
+                        // Incinerator Offline Log
+                        if(is_incinerator_data_available()){
+                            nwy_test_cli_echo("Incinerator Offline Log Found \n");
+                            incineratorOfflineLogDataState = true;
+                        }else{
+                            nwy_test_cli_echo("No Incinerator Offline \n");
+                            incineratorOfflineLogDataState = false;
+                        }
+                    } else {
+                        nwy_test_cli_echo("\nFailed to Publish to Topic: %s\n", PTIncinCycleMessage);
+                    }
+                }
+            }
 
         }else{
             nwy_test_cli_echo("\r\n ********** Network Connection Process Started **********");
@@ -504,6 +563,11 @@ void nwy_send_acknowledgement(){
             nwy_test_cli_echo("Publish Acknowledgement Message to AWS of Case 2 \n");
             send_dispense_order_message(VendingOidValue, 1, 0, machineReadings.StockStatus, 200, 1, 177, 83); // 1 Represents Offline Mode
             break;
+
+        case 3:
+            nwy_test_cli_echo("Publish Acknowledgement Message to AWS of Case 3 \n");
+            send_config_request_data();
+            break;
         
         default:
             break;
@@ -542,6 +606,8 @@ static void nwy_test_cli_main_func(void *param)
     // delete_file_by_name("incinConfig");
     // delete_file_by_name("businessconfig");
     // delete_file_by_name("techconfig");
+    // delete_file_by_name("incineratorOfflineData");
+    // delete_file_by_name("napkinOfflineData");
 
 
     if(CustomCode){
@@ -631,6 +697,24 @@ static void nwy_test_cli_main_func(void *param)
                     nwy_test_cli_echo("\r\nBusiness Config Load Failed!\r\n");
                     businessConfigFound = false;
                 }
+            }
+
+            // Napkin Offline Log
+            if(is_napkin_data_available()){
+                nwy_test_cli_echo("Napkin Offline Log Found \n");
+                napkinOfflineLogDataState = true;
+            }else{
+                nwy_test_cli_echo("No Napkin Offline \n");
+                napkinOfflineLogDataState = false;
+            }
+
+            // Incinerator Offline Log
+            if(is_incinerator_data_available()){
+                nwy_test_cli_echo("Incinerator Offline Log Found \n");
+                incineratorOfflineLogDataState = true;
+            }else{
+                nwy_test_cli_echo("No Incinerator Offline \n");
+                incineratorOfflineLogDataState = false;
             }
 
             // Incinerator Time & Count
@@ -864,9 +948,9 @@ static void nwy_test_cli_main_func(void *param)
                     nwy_i2c_init_process();
                     // return;
                 }
-                if(FotaUpdate){
-                    nwy_test_cli_echo("FOTA Process started \n");
-                }
+                // if(FotaUpdate){
+                //     nwy_test_cli_echo("FOTA Process started \n");
+                // }
 
                 check_and_run_scheduled_task();
 
@@ -874,7 +958,7 @@ static void nwy_test_cli_main_func(void *param)
                 nwy_send_acknowledgement();
 
                 // Temp
-                nwy_test_cli_get_heap_info();
+                // nwy_test_cli_get_heap_info();
 
                 nwy_thread_sleep(300);
             }  
