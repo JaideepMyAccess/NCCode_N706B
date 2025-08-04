@@ -98,6 +98,8 @@
     "nwy_test_cli_utils.h": "c",
     "rsa.h": "c",
     "stdbool.h": "c",
-    "mqttclient.h": "c"
+    "mqttclient.h": "c",
+    "nwy_cust.h": "c",
+    "nwy_gpio_api.h": "c"
   }
 }

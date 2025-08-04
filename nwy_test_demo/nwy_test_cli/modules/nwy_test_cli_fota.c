@@ -114,7 +114,6 @@ void nwy_test_cli_fota_local_update(void)
     }
     free(g_ota_pack.data);
 
-    nwy_test_cli_echo("\r\n update start...\r\n");
     ret = nwy_fota_update(1);
     if(ret == NWY_FOTA_CHECK_FAILED)
     {
@@ -199,6 +198,24 @@ static void nwy_cli_ftp_fota_result_cb(nwy_ftp_result_t *param)
             {
                 nwy_ftp_logout(g_ftp_fota_handl);
                 nwy_test_cli_echo("\r\n nwy_ftp_get fail");
+                lcd_init();
+                lcd_clear();
+                Display(0, PAGE2, 0, "      FOTA UPDATE     ");
+                Display(0, PAGE4, 0, "         FAILED       ");
+                send_config_ack(4,3);
+
+                if(IsInstulationOperation){
+                    lcd_insun_last_display_time = nwy_uptime_get();
+                    nwy_test_cli_echo("**************** Insuin Screen State True *******************");
+                    NeedToCheckInsunTime = true;
+                    NeededInsuinScreen = true;
+                    InterruptForDispense = true;
+                }else{
+                    lcd_last_display_time = nwy_uptime_get();
+                    NeededDefaultScreen = true; 
+                    InterruptForDispense = false;
+                    NeededInsuinScreen = false;
+                }
             }
             break;
         case NWY_FTP_EVENT_LOGOUT:
@@ -206,8 +223,30 @@ static void nwy_cli_ftp_fota_result_cb(nwy_ftp_result_t *param)
             nwy_test_cli_echo("\r\nFtp logout,cid:%d",cid);
             if(g_ota_pack.offset == g_ota_pack.total_size && g_ota_pack.offset != 0)
             {
+                lcd_init();
+                lcd_clear();
+                Display(0, PAGE2, 0, "      FOTA UPDATE    ");
+                Display(0, PAGE4, 0, "        SUCCESS      ");
+                send_config_ack(4,2);
+
+                if(IsInstulationOperation){
+                    lcd_insun_last_display_time = nwy_uptime_get();
+                    nwy_test_cli_echo("**************** Insuin Screen State True *******************");
+                    NeedToCheckInsunTime = true;
+                    NeededInsuinScreen = true;
+                    InterruptForDispense = true;
+                }else{
+                    lcd_last_display_time = nwy_uptime_get();
+                    NeededDefaultScreen = true; 
+                    InterruptForDispense = false;
+                    NeededInsuinScreen = false;
+                }
+                nwy_thread_sleep(1000);
+
                 nwy_test_cli_echo("\r\n update start...\r\n");
+                nwy_thread_sleep(2000);
                 result = nwy_fota_update(1);
+                nwy_test_cli_echo("\r\n update completed...\r\n");
                 if(result == NWY_FOTA_CHECK_FAILED)
                 {
                     nwy_test_cli_echo("\r\n fota package check fail\r\n");

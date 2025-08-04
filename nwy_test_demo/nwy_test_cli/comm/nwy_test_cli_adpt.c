@@ -276,7 +276,7 @@ int chamberB_disp = 0;
 char MAC_ID[10] = "";
 char MERCHANT_ID[15] = "";
 char MERCH_KEY[5] = "INTG";
-char VersionNumber[6] = "3.0";
+char VersionNumber[6] = "4.0";
 char ImeiNumber[20]= {0};
 
 // ==============================
@@ -592,7 +592,8 @@ static void nwy_test_cli_main_func(void *param)
     nwy_thread_sleep(100);
 
     // Custom Code 1 Execution
-    sptr = nwy_test_cli_input_gets("\r\nSend data to start the Execution of the Program: \r\n");
+    // sptr = nwy_test_cli_input_gets("\r\nSend data to start the Execution of the Program: \r\n");
+
     nwy_test_cli_echo("\r\nHardware Version: N706B-CN-10, SDK Firmware: 009, Software Firmware: V1.00 \r\n");
     nwy_test_cli_get_model();
     nwy_test_cli_get_imei();
@@ -978,20 +979,20 @@ static void nwy_test_cli_main_func(void *param)
 
     }else{
         // -------------- Default Code ---------------
-        while (1)
-        {
-            nwy_test_cli_menu_display();
-            sptr = nwy_test_cli_input_gets("\r\nPlease input option: ");
-            if (sptr[0] == 'q' || sptr[0] == 'Q')
-            {
-                nwy_test_cli_menu_back();
-            }
-            else
-            {
-                nwy_test_cli_menu_select(atoi(sptr));
-            }
+        // while (1)
+        // {
+        //     nwy_test_cli_menu_display();
+        //     sptr = nwy_test_cli_input_gets("\r\nPlease input option: ");
+        //     if (sptr[0] == 'q' || sptr[0] == 'Q')
+        //     {
+        //         nwy_test_cli_menu_back();
+        //     }
+        //     else
+        //     {
+        //         nwy_test_cli_menu_select(atoi(sptr));
+        //     }
 
-        }
+        // }
     }
 }
 
