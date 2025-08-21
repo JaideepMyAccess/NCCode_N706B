@@ -100,6 +100,8 @@
     "stdbool.h": "c",
     "mqttclient.h": "c",
     "nwy_cust.h": "c",
-    "nwy_gpio_api.h": "c"
+    "nwy_gpio_api.h": "c",
+    "nwy_osi_api.h": "c",
+    "nwy_lbs_api.h": "c"
   }
 }

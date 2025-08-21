@@ -133,8 +133,11 @@ void nwy_i2c_send_data() {
         // return;  // Exit the function if invalid data
     }
 
-    chamberA_temp = ((read_flag[2] << 8) | read_flag[3]) * 0.7;
-    chamberB_temp = ((read_flag[4] << 8) | read_flag[5]) * 0.7;
+    // chamberA_temp = ((read_flag[2] << 8) | read_flag[3]) * 0.7;
+    // chamberB_temp = ((read_flag[4] << 8) | read_flag[5]) * 0.7;
+
+    chamberA_temp = ((read_flag[2] << 8) | read_flag[3]);
+    chamberB_temp = ((read_flag[4] << 8) | read_flag[5]);
 
     // Chamber A Manipulation
     if (chamberA_temp <= 200) {

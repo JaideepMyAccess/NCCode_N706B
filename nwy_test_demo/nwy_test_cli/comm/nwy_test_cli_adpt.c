@@ -276,7 +276,7 @@ int chamberB_disp = 0;
 char MAC_ID[10] = "";
 char MERCHANT_ID[15] = "";
 char MERCH_KEY[5] = "INTG";
-char VersionNumber[6] = "4.0";
+char VersionNumber[6] = "3.0";
 char ImeiNumber[20]= {0};
 
 // ==============================
