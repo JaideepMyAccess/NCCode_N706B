@@ -61,9 +61,12 @@ void nwy_i2c_init_process(){
 void nwy_i2c_send_data() {
 
     int64_t I2cTimeoutValue = nwy_uptime_get();
+    if(I2cBusy){
+        nwy_test_cli_echo("*********************** I2c Bus Busy *********************\n");
+    }
     while(I2cBusy){
         nwy_thread_sleep(10);
-        if((I2cTimeoutValue + 1) < nwy_uptime_get()){
+        if((I2cTimeoutValue + 1000) < nwy_uptime_get()){
             nwy_test_cli_echo("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ I2c Timeout ~~~~~~~~~~~~~~~~~~~~\n");
             break;
         }
@@ -92,6 +95,11 @@ void nwy_i2c_send_data() {
         nwy_test_cli_echo("I2C Success: Bus Name:%s, Write Success \n", i2c_bus_new);
         I2C_Connected = true;
         nwy_thread_sleep(40);
+        if(ForTemperatureReading){
+            nwy_test_cli_echo("For Temperature Reading added delay \n");
+            nwy_thread_sleep(120);
+            ForTemperatureReading = false;
+        }
         nwy_i2c_receive_data();
         nwy_thread_sleep(100);
     }else{
@@ -111,10 +119,11 @@ void nwy_i2c_send_data() {
     bool valid_data = false;
 
     while (retries-- > 0) {
+        ForTemperatureReading = true;
         uint8_t new_cmd_flag1[8] = { 0x0b, 0x0b, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
         memcpy(cmd_flag, new_cmd_flag1, sizeof(new_cmd_flag1));
         nwy_i2c_send_data();
-        // nwy_sleep(100);  // wait for conversion
+        nwy_thread_sleep(200);  // wait for conversion
 
         // Check if 15th bit is not set (data valid)
         bool chamberA_valid = (read_flag[2] & 0x80) == 0;
@@ -129,7 +138,7 @@ void nwy_i2c_send_data() {
     }
 
     if (!valid_data) {
-        nwy_test_cli_echo("Thermocouple read failed after 5 retries.\n");
+        nwy_test_cli_echo("Thermocouple read failed after 3 retries.\n");
         // return;  // Exit the function if invalid data
     }
 

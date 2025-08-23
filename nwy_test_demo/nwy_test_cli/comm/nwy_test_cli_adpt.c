@@ -301,6 +301,7 @@ bool InterruptForDispense = true;
 bool FotaUpdate = false;
 bool IsInstulationOperation = false;
 bool NetworkConnectStatus = false;
+bool ForTemperatureReading = false;
 
 int64_t lcd_last_display_time = 0;
 int64_t lcd_insun_last_display_time = 0;

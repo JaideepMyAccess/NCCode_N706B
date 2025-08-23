@@ -159,7 +159,7 @@ extern bool NeededInsuinScreen;
 extern bool InterruptForDispense;
 extern bool FotaUpdate;
 extern bool IsInstulationOperation;
-
+extern bool ForTemperatureReading;
 extern bool PublishTrigger;
 extern int PublishCode;
 extern int PublishCodeA;
