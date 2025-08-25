@@ -1593,6 +1593,8 @@ int nwy_mqtt_publish_data(const char *topic, const char *data)
     if (!MQTTIsConnected(&paho_mqtt_client))
     {
         nwy_test_cli_echo("\r\nMQTT not connected");
+        // NetworkConnectStatus = false;
+        // NetworkDisconnectStatus = true;
         return -1;
     }
 

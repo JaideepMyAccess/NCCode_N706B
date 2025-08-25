@@ -104,6 +104,11 @@
     "nwy_osi_api.h": "c",
     "nwy_lbs_api.h": "c",
     "nwy_test_cli_func_def.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "crypto.h": "c",
+    "legacy_or_psa.h": "c",
+    "types.h": "c",
+    "platform_util.h": "c",
+    "build_info.h": "c"
   }
 }

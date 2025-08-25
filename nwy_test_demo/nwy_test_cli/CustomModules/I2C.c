@@ -74,7 +74,6 @@ void nwy_i2c_send_data() {
     I2cBusy = true;
     nwy_test_cli_echo("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  True  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 
-
     int ret;
 
     int cmd_size = sizeof(cmd_flag);
@@ -90,7 +89,6 @@ void nwy_i2c_send_data() {
 
     ret = nwy_i2c_write(bus, i2c_DEV_ADDR, 0xAA, cmd_flag, cmd_size);
 
-
     if (ret >=0) {
         nwy_test_cli_echo("I2C Success: Bus Name:%s, Write Success \n", i2c_bus_new);
         I2C_Connected = true;
@@ -100,7 +98,7 @@ void nwy_i2c_send_data() {
             nwy_thread_sleep(120);
             ForTemperatureReading = false;
         }
-        nwy_i2c_receive_data();
+        nwy_i2c_receive_data(); 
         nwy_thread_sleep(100);
     }else{
         nwy_test_cli_echo("I2C Error: Bus Name:%s, write failed \n", i2c_bus_new);
@@ -109,6 +107,7 @@ void nwy_i2c_send_data() {
         nwy_test_cli_echo("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  I2c Write Failed  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n");
     }
 }
+
  void update_temperature(void){
     chamberA_temp = 0;
     chamberB_temp = 0;
@@ -120,6 +119,7 @@ void nwy_i2c_send_data() {
 
     while (retries-- > 0) {
         ForTemperatureReading = true;
+        // memset( read_flag, 0, sizeof( read_flag ) );
         uint8_t new_cmd_flag1[8] = { 0x0b, 0x0b, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
         memcpy(cmd_flag, new_cmd_flag1, sizeof(new_cmd_flag1));
         nwy_i2c_send_data();
@@ -571,7 +571,7 @@ void nwy_i2c_receive_data(){
                     // memcpy(cmd_flag, new_cmd_flag3, sizeof(cmd_flag));
                     // nwy_i2c_send_data();
                     // nwy_thread_sleep(100);
-
+                    nwy_thread_sleep(100);
                     uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
                     memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
                     nwy_i2c_send_data();
@@ -730,7 +730,7 @@ void nwy_i2c_receive_data(){
     }else{
   
         nwy_test_cli_echo("\r\n I2C Error: Bus Name:%s Read Address Failed", i2c_bus_new);
-    
+        I2C_Connected = false;
     }
 }
 

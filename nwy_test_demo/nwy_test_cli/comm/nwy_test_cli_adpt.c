@@ -392,7 +392,7 @@ static void nwy_test_cli_main_func3(void *param)
         }else{
             nwy_test_cli_echo("\r\n ********** Network Connection Process Started **********");
 
-            if(NetworkDisconnectStatus){
+            if(NetworkConnectStatus){
                 nwy_test_cli_echo("\nDisconnecting from Profile Data Connection & AWS MQTT ");
                 nwy_test_cli_mqtt_disconnect();
                 nwy_thread_sleep(100);
@@ -781,6 +781,7 @@ static void nwy_test_cli_main_func(void *param)
             uint8_t new_cmd_flag4[8] = { 0x05, 0x05, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00 };
             memcpy(cmd_flag, new_cmd_flag4, sizeof(cmd_flag));
             nwy_i2c_send_data();
+            UpdateStockToServer = false;
             nwy_thread_sleep(100);
 
             // nwy_test_i2c();
