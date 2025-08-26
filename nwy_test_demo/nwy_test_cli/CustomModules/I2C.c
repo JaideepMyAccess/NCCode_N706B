@@ -92,10 +92,12 @@ void nwy_i2c_send_data() {
     if (ret >=0) {
         nwy_test_cli_echo("I2C Success: Bus Name:%s, Write Success \n", i2c_bus_new);
         I2C_Connected = true;
-        nwy_thread_sleep(40);
+        // nwy_thread_sleep(10);
+        nwy_thread_sleep(4);
         if(ForTemperatureReading){
-            nwy_test_cli_echo("For Temperature Reading added delay \n");
-            nwy_thread_sleep(120);
+            nwy_test_cli_echo("*** ---------- For Temperature Reading added delay ------------- ***\n");
+            // nwy_thread_sleep(380);
+            nwy_thread_sleep(200);
             ForTemperatureReading = false;
         }
         nwy_i2c_receive_data(); 
@@ -471,7 +473,16 @@ void Update_Screen(char *status_buffer1, char *status_buffer2, char *status_buff
 void nwy_i2c_receive_data(){
 
     int ret;
-    ret = nwy_i2c_raw_put_byte(bus, (i2c_DEV_ADDR << 1) | 0x01, 1, 0);
+    while (1){
+        ret = nwy_i2c_raw_put_byte(bus, (i2c_DEV_ADDR << 1) | 0x01, 1, 0);
+        nwy_test_cli_echo("I2C Send Data --- Write Address: 0x%02x, Bus Name:%s, Data: 0x00 \n", ((i2c_DEV_ADDR << 1) & 0xFE), i2c_bus_new);
+        if (ret >= 0) {
+            nwy_test_cli_echo("I2C Send Data Success \n");
+            break;
+        }
+        nwy_thread_sleep(10);
+    }
+    // ret = nwy_i2c_raw_put_byte(bus, (i2c_DEV_ADDR << 1) | 0x01, 1, 0);
     I2cBusy = false;
     if (ret >= 0) {
 
